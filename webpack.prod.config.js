@@ -5,14 +5,14 @@ var webpackUMDExternal = require('webpack-umd-external');
 module.exports = {
   devtool: 'sourcemap',
   entry: {
-    index: './src/Tabs/index.js'
+    index: './src/ItemsCarousel/index.js'
   },
   output: {
     path: path.join(__dirname, 'build'),
     publicPath: 'build/',
     filename: 'react-items-carousel.js',
     sourceMapFilename: 'react-items-carousel.map',
-    library: 'ReactSwipeableTabs',
+    library: 'ReactItemsCarousel',
     libraryTarget: 'umd'
   },
   plugins: [
