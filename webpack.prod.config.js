@@ -8,8 +8,8 @@ module.exports = {
     index: './src/ItemsCarousel/index.js'
   },
   output: {
-    path: path.join(__dirname, 'build'),
-    publicPath: 'build/',
+    path: path.join(__dirname, 'dist'),
+    publicPath: 'dist/',
     filename: 'react-items-carousel.js',
     sourceMapFilename: 'react-items-carousel.map',
     library: 'ReactItemsCarousel',
