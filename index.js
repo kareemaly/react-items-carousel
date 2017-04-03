@@ -1,1 +1,1 @@
-module.exports = require('./dist/react-swipeable-tabs');
+module.exports = require('./dist/react-items-carousel');
