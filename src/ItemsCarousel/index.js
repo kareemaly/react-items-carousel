@@ -1,31 +1,47 @@
 import React from 'react';
-import { Motion, spring } from 'react-motion';
+import { Motion, spring, presets } from 'react-motion';
 import Measure from 'react-measure';
-import styled from 'styled-components';
+import styled, { injectGlobal } from 'styled-components';
+import range from 'lodash/range';
 import Animator from './Animator';
+import ItemsCarouselList from './ItemsCarouselList';
+
+const ChevronsWrapper = styled.div`
+  ${(props) => props.hasChevron ? `position: relative`: ''}
+`;
 
 const SliderWrapper = styled.div`
   width: 100%;
-  overflow: hidden;
-`;
-
-const SliderItemsWrapper = styled.div`
-  width: 100%;
-  display: flex;
-  flex-wrap: nowrap;
-  transform: translate(${(props) => props.translateX}px, 0);
+  overflow-x: ${(props) => !props.isAppShellMode && !props.disableScrolling && props.freeScrolling ? 'scroll' : 'hidden'};
+  -webkit-overflow-scrolling: touch;
+  ::-webkit-scrollbar {
+    display: none;
+    width: 0px;
+    background: rgba(0, 0, 0, 0);
+  }
 `;
 
 const SliderInnerWrapper = styled.div`
-  padding-left: ${(props) => props.firstItemGutter}px;
-  padding-right: ${(props) => props.lastItemGutter}px;
+  margin-left: ${(props) => props.firstItemGutter}px;
+  margin-right: ${(props) => props.lastItemGutter}px;
 `;
 
-const SliderItem = styled.div`
-  width: ${(props) => props.width}px;
-  flex-shrink: 0;
-  margin-right: ${(props) => props.rightGutter}px;
-  margin-left: ${(props) => props.leftGutter}px;
+const CarouselRightChevron = styled.div`
+  position: absolute;
+  height: 100%;
+  width: ${(props) => props.chevronWidth + 1}px;
+  cursor: pointer;
+  background: #FFF;
+  right: -${(props) => props.outsideChevron ? props.chevronWidth + 1 : 1}px;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const CarouselLeftChevron = styled(CarouselRightChevron)`
+  left: -${(props) => props.outsideChevron ? props.chevronWidth + 1 : 1}px;
+  right: 0px;
 `;
 
 export default class ItemsCarousel extends React.Component {
@@ -36,9 +52,14 @@ export default class ItemsCarousel extends React.Component {
      * @type {number}
      */
     resistanceCoeffiecent: React.PropTypes.number,
-    stiffness: React.PropTypes.number,
-    damping: React.PropTypes.number,
+    springConfig: React.PropTypes.shape({
+      stiffness: React.PropTypes.number,
+      precision: React.PropTypes.number,
+      damping: React.PropTypes.number,
+    }),
     children: React.PropTypes.array.isRequired,
+    disableScrolling: React.PropTypes.bool,
+    freeScrolling: React.PropTypes.bool,
     /**
      * Safe margin to use
      * @type {number}
@@ -87,12 +108,25 @@ export default class ItemsCarousel extends React.Component {
      * @type {bool}
      */
     canCenterOne: React.PropTypes.bool,
+
+    // AppShell configurations
+    enableAppShell: React.PropTypes.bool,
+    appShellItem: React.PropTypes.element,
+    minimumAppShellTime: React.PropTypes.number,
+    numberOfShellItems: React.PropTypes.number,
+
+    // Chevron configurations
+    rightChevron: React.PropTypes.element,
+    leftChevron: React.PropTypes.element,
+    chevronWidth: React.PropTypes.number,
+    outsideChevron: React.PropTypes.bool,
+    // Number of slides to scroll when chevron is clicked
+    slidesToScroll:  React.PropTypes.number,
   };
 
   static defaultProps = {
     resistanceCoeffiecent: 0.5,
-    stiffness: 270,
-    damping: 30,
+    springConfig: presets.noWobble,
     gutter: 0,
     safeMargin: 100,
     initialTranslation: 0,
@@ -101,54 +135,79 @@ export default class ItemsCarousel extends React.Component {
     lastItemGutter: 0,
     centeredItemIndex: 0,
     canCenterOne: true,
+    enableAppShell: true,
+    minimumAppShellTime: 0,
+    numberOfShellItems: 4,
   };
 
   constructor(props) {
     super(props);
 
     this.animator = new Animator();
-    this.animator.setCurrentTranslateX(0);
-    this.updateAnimatorFromProps(props);
+    this.appShellAnimator = new Animator();
+
+    this.updateAnimatorFromProps(props, this.animator);
+    this.updateAnimatorFromProps(props, this.appShellAnimator);
+
+    const hasMinimumAppShellTime = props.enableAppShell && props.children.length === 0 && props.minimumAppShellTime > 0;
 
     this.state = {
       translateX: 0,
       centeredItemIndex: 0,
+      isReady: false,
+      lastSwipe: {},
+      startSwipe: {},
+      // Force show app shell if minimum app shell time was greater than zero
+      forceShowAppShell: hasMinimumAppShellTime,
     };
 
-    if(this.props.centeredItemIndex) {
-      this.animator.whenReady(() => {
-        this.setState(this.getCenterItemState(this.props.centeredItemIndex));
-      });
+    // Add timer to unset forceShowAppShell state variable after the minimum app shell time
+    if(hasMinimumAppShellTime) {
+      this.timer = setTimeout(() => {
+        this.setState({
+          forceShowAppShell: false,
+        });
+      }, this.props.minimumAppShellTime);
     }
+
+    // When animator says that children are ready (there widths have been calculated)
+    this.animator.whenReady(() => {
+      this.setState({
+        isReady: true,
+        ...this.getCenterItemState(this.props.centeredItemIndex)
+      });
+    });
   }
 
   componentWillReceiveProps(nextProps) {
-    this.updateAnimatorFromProps(nextProps);
+    this.updateAnimatorFromProps(nextProps, this.animator);
+    this.updateAnimatorFromProps(nextProps, this.appShellAnimator);
 
-    if(nextProps.centeredItemIndex !== this.state.centeredItemIndex) {
+    if(! this.isAppShellMode(nextProps, this.state)
+      && nextProps.centeredItemIndex !== this.state.centeredItemIndex) {
       this.centerItem(nextProps.centeredItemIndex);
     }
   }
 
-  updateAnimatorFromProps(props) {
-    this.animator.setNumberOfChildren(props.children.length);
-    this.animator.setNumberOfCards(props.numberOfCards);
-    this.animator.setGutter(props.gutter);
-    this.animator.setSafeMargin(props.safeMargin);
-    this.animator.setInitialTranslation(props.initialTranslation);
-    this.animator.setResistanceCoeffiecent(props.resistanceCoeffiecent);
-    this.animator.setCanCenterOne(props.canCenterOne);
+  updateAnimatorFromProps(props, animator) {
+    animator.setNumberOfChildren(props.children.length);
+    animator.setNumberOfCards(props.numberOfCards);
+    animator.setGutter(props.gutter);
+    animator.setSafeMargin(props.safeMargin);
+    animator.setInitialTranslation(props.initialTranslation);
+    animator.setResistanceCoeffiecent(props.resistanceCoeffiecent);
+    animator.setCanCenterOne(props.canCenterOne);
   }
 
   componentWillUpdate(nextProps, nextState) {
-    if(nextState.translateX !== this.state.translateX) {
-      this.animator.setCurrentTranslateX(nextState.translateX);
-    }
-
     if(nextProps.onCenteredItemChange && 
       nextState.centeredItemIndex !== this.state.centeredItemIndex) {
       nextProps.onCenteredItemChange(nextState.centeredItemIndex);
     }
+  }
+
+  componentWillUnmount() {
+    clearTimeout(this.timer);
   }
 
   getPosition(e) {
@@ -174,8 +233,10 @@ export default class ItemsCarousel extends React.Component {
 
     const { posX, posY } = this.getPosition(e);
 
-    this.setState({
-      startSwipe: { posX, posY },
+    window.requestAnimationFrame(() => {
+      this.setState({
+        startSwipe: { posX, posY },
+      });
     });
   }
 
@@ -186,9 +247,11 @@ export default class ItemsCarousel extends React.Component {
     const centeredItemIndex = this.animator.getSwipeReleaseCenterItemIndex(deltaX);
 
     // 
-    this.setState({
-      translateX: this.animator.calculateCenterTranslateXAtItem(centeredItemIndex),
-      centeredItemIndex,
+    window.requestAnimationFrame(() => {
+      this.setState({
+        translateX: this.animator.calculateCenterTranslateXAtItem(centeredItemIndex),
+        centeredItemIndex,
+      });
     });
   }
 
@@ -196,9 +259,11 @@ export default class ItemsCarousel extends React.Component {
     const { posX, posY } = this.getPosition(e);
     const deltaX = posX - this.state.startSwipe.posX;
 
-    this.setState({
-      translateX: this.animator.calculateSwipeTranslateX(deltaX),
-      lastSwipe: { posX, posY },
+    window.requestAnimationFrame(() => {
+      this.setState({
+        translateX: this.animator.calculateSwipeTranslateX(deltaX),
+        lastSwipe: { posX, posY },
+      });
     });
   }
 
@@ -209,39 +274,60 @@ export default class ItemsCarousel extends React.Component {
   }
 
   calculateNextFrame() {
-    const options = {
-      stiffness: this.props.stiffness,
-      damping: this.props.damping,
-    };
     return {
-      translateX: spring(this.state.translateX, options),
+      translateX: spring(this.state.translateX, this.props.springConfig),
     };
   }
 
-  renderList(translateX, gutter, children) {
+  renderList = ({ translateX }) => {
+    const {
+      gutter,
+      freeScrolling,
+      lastItemGutter,
+      children,
+      appShellItem,
+      numberOfShellItems,
+      enableAppShell,
+    } = this.props;
+
+    const {
+      isReady,
+      forceShowAppShell,
+    } = this.state;
+
+    const isAppShellMode = this.isAppShellMode({ enableAppShell, children }, { forceShowAppShell });
+    const animator = isAppShellMode ? this.appShellAnimator : this.animator;
+    const items = isAppShellMode ? range(numberOfShellItems).map(i => appShellItem) : children;
+
+    animator.setCurrentTranslateX(translateX);
+
+    // Need to add last item gutter when it's free scrolling and children smaller than container
+    const freeScrollingLastItemGutter = freeScrolling && !animator.isChildrenSmallerThanContainer() ? lastItemGutter : 0;
+
     return (
-      <SliderItemsWrapper translateX={translateX}>
-        {children.map((child, index) => (
-          <Measure
-            key={index}
-            includeMargin={false}
-            onMeasure={({ width }) => {
-              if(width > 20) {
-                this.animator.setChildWidth(index, width);
-                this.setState({ update: true });
-              }
-            }}
-          >
-            <SliderItem
-              width={this.animator.getItemWidth()}
-              rightGutter={index === children.length - 1 ? 0 : gutter}
-            >
-              {child}
-            </SliderItem>
-          </Measure>
-        ))}
-      </SliderItemsWrapper>
+      <ItemsCarouselList
+        translateX={translateX}
+        freeScrollingLastItemGutter={freeScrollingLastItemGutter}
+        gutter={gutter}
+        isReady={isReady}
+        animator={animator}
+        children={items}
+      />
     );
+  }
+
+  isAppShellMode({ enableAppShell, children }, { forceShowAppShell }) {
+    return enableAppShell && (children.length === 0 || forceShowAppShell);
+  }
+
+  getLimitIndex(index, children) {
+    if(index < 0) {
+      return 0;
+    }
+    if(index > children.length - 1) {
+      return children.length - 1;
+    }
+    return index;
   }
 
   render() {
@@ -250,37 +336,87 @@ export default class ItemsCarousel extends React.Component {
       children,
       firstItemGutter,
       lastItemGutter,
+      disableScrolling,
+      freeScrolling,
+      enableAppShell,
+      numberOfCards,
+      rightChevron,
+      leftChevron,
+      chevronWidth,
+      outsideChevron,
+      style,
+      className,
+      slidesToScroll,
       ...props,
     } = this.props;
 
+    const {
+      forceShowAppShell,
+      centeredItemIndex,
+    } = this.state;
+
+    const isAppShellMode = this.isAppShellMode({ enableAppShell, children }, { forceShowAppShell });
+
+    const showRightChevron = !isAppShellMode && rightChevron && centeredItemIndex < children.length - 1;
+    const showLeftChevron = !isAppShellMode && leftChevron && centeredItemIndex > 0;
+
+    const numberOfSlidesToScroll = slidesToScroll || numberOfCards;
+
     return (
-      <SliderWrapper
-        onTouchEnd={this.onSwipeEnd}
-        onTouchMove={this.onSwipe}
-        onTouchStart={this.onSwipeStart}
+      <ChevronsWrapper
+        style={style}
+        className={className}
+        hasChevron={showLeftChevron || showRightChevron}
       >
-        <SliderInnerWrapper
-          firstItemGutter={firstItemGutter}
-          lastItemGutter={lastItemGutter}
+        <SliderWrapper
+          isAppShellMode={isAppShellMode}
+          disableScrolling={disableScrolling}
+          freeScrolling={freeScrolling}
+          onTouchEnd={freeScrolling || disableScrolling ? undefined : this.onSwipeEnd}
+          onTouchMove={freeScrolling || disableScrolling ? undefined : this.onSwipe}
+          onTouchStart={freeScrolling || disableScrolling ? undefined : this.onSwipeStart}
         >
-          <Measure
-            onMeasure={({ width }) => {
-              this.animator.setContainerWidth(width);
-              this.setState({ update: true });
-            }}
+          <SliderInnerWrapper
+            firstItemGutter={firstItemGutter}
+            lastItemGutter={lastItemGutter}
           >
-            <Motion
-              onRest={() => {
+            <Measure
+              whitelist={['width']}
+              onMeasure={({ width }) => {
+                this.animator.setContainerWidth(width);
+                this.appShellAnimator.setContainerWidth(width);
+                this.setState({ update: true });
               }}
-              defaultStyle={this.getInitialFrame()}
-              style={this.calculateNextFrame()}
             >
-              {({ translateX }) =>
-                this.renderList(translateX, gutter, children)}
-            </Motion>
-          </Measure>
-        </SliderInnerWrapper>
-      </SliderWrapper>
+              <Motion
+                defaultStyle={this.getInitialFrame()}
+                style={this.calculateNextFrame()}
+                children={this.renderList}
+              />
+            </Measure>
+          </SliderInnerWrapper>
+        </SliderWrapper>
+        {
+          showRightChevron && 
+          <CarouselRightChevron
+            chevronWidth={chevronWidth}
+            outsideChevron={outsideChevron}
+            onClick={() => this.centerItem(this.getLimitIndex(centeredItemIndex + numberOfSlidesToScroll, children))}
+          >
+            {rightChevron}
+          </CarouselRightChevron>
+        }
+        {
+          showLeftChevron && 
+          <CarouselLeftChevron
+            chevronWidth={chevronWidth}
+            outsideChevron={outsideChevron}
+            onClick={() => this.centerItem(this.getLimitIndex(centeredItemIndex - numberOfSlidesToScroll, children))}
+          >
+            {leftChevron}
+          </CarouselLeftChevron>
+        }
+      </ChevronsWrapper>
     );
   }
 }

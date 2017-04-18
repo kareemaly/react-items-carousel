@@ -4,33 +4,34 @@ const getCurrentMillis = () => new Date().getTime();
 
 export default class Animator {
   constructor() {
-    this.children = [];
     this.readyListeners = [];
     this.noOfChildren = 0;
+    this.currentTranslateX = 0;
   }
 
-  setChildrenWidth(childrenWidth) {
-    this.childrenWidth = childrenWidth;
+  resetCache() {
+    this.childrenWidth = undefined;
+    this.itemWidth = undefined;
   }
 
   setContainerWidth(containerWidth) {
     this.containerWidth = containerWidth;
-  }
-
-  getContainerWidth() {
-    return this.containerWidth;
+    this.resetCache();
   }
 
   setSafeMargin(safeMargin) {
     this.safeMargin = safeMargin;
+    this.resetCache();
   }
 
   setInitialTranslation(initialTranslation) {
     this.initialTranslation = initialTranslation;
+    this.resetCache();
   }
 
   setResistanceCoeffiecent(resistanceCoeffiecent) {
     this.resistanceCoeffiecent = resistanceCoeffiecent;
+    this.resetCache();
   }
 
   setCurrentTranslateX(translateX) {
@@ -44,6 +45,10 @@ export default class Animator {
 
   endDrag() {
     this.endDragMillis = getCurrentMillis();
+  }
+
+  getContainerWidth() {
+    return this.containerWidth;
   }
 
   /**
@@ -63,11 +68,11 @@ export default class Animator {
     const safeMargin = useSafeMargin ? this.safeMargin : 0;
 
     // If the newtranslate + window width is more than list width then stop translating
-    return (translateX * -1) + this.containerWidth > (this.childrenWidth + safeMargin);
+    return (translateX * -1) + this.containerWidth > (this.getChildrenWidth() + safeMargin);
   }
 
   isChildrenSmallerThanContainer() {
-    return this.childrenWidth < this.containerWidth;
+    return this.getChildrenWidth() < this.containerWidth;
   }
 
   getFarLeftTranslation(useSafeMargin) {
@@ -75,7 +80,7 @@ export default class Animator {
   }
 
   getFarRightTranslation(useSafeMargin) {
-    return this.initialTranslation - this.childrenWidth + this.containerWidth - (useSafeMargin ? this.safeMargin : 0);
+    return this.initialTranslation - this.getChildrenWidth() + this.containerWidth - (useSafeMargin ? this.safeMargin : 0);
   }
 
   checkAndGetTranslateX(translateX, useSafeMargin) {
@@ -132,6 +137,7 @@ export default class Animator {
   }
 
   callReadyListeners() {
+    this.isReady = true;
     this.readyListeners.forEach(listener => listener());
     this.readyListeners = [];
   }
@@ -148,22 +154,19 @@ export default class Animator {
     this.noOfCards = noOfCards;
   }
 
-  setChildWidth(index, childWidth) {
-    this.children[index] = childWidth;
-
-    const totalChildrenWidth = this.children.reduce((a, b) => a + b, 0);
-
-    this.setChildrenWidth(totalChildrenWidth + (this.gutter * (this.children.length - 1)));
-
-    if(index === this.noOfChildren - 1) {
-      this.callReadyListeners();
+  getChildrenWidth() {
+    if(! this.childrenWidth) {
+      this.childrenWidth = (this.noOfChildren * this.getItemWidth()) + (this.gutter * (this.noOfChildren - 1));
     }
+    return this.childrenWidth;
   }
 
   getItemWidth() {
-    const allGutter = this.gutter * (this.noOfCards - 1);
-    const itemWidth = (this.getContainerWidth() - allGutter)  / this.noOfCards;
-    return Math.floor(itemWidth);
+    if(! this.itemWidth) {
+      const allGutter = this.gutter * (this.noOfCards - 1);
+      this.itemWidth = Math.floor((this.getContainerWidth() - allGutter)  / this.noOfCards);
+    }
+    return this.itemWidth;
   }
 
   getCenterPointAt(n) {
@@ -171,7 +174,7 @@ export default class Animator {
     // where n starts from 0
     // Pn = pointToCenter
     // In = width of item at n
-    const totalItemsWidth = this.children.slice(0, n + 1).reduce((a, b) => a + b, 0);
+    const totalItemsWidth = this.getItemWidth() * (n + 1);
     return totalItemsWidth + (this.gutter*n) + (this.gutter/2);
   }
 
@@ -180,17 +183,22 @@ export default class Animator {
     // where n starts from 0
     // Cn = center of an item
     // In = width of item at n
-    const totalItemsWidth = this.children.slice(0, n).reduce((a, b) => a + b, 0);
+    const totalItemsWidth =  this.getItemWidth() * (n);
 
     // If it's the last item
-    if((this.children.length - 1) <=  n) {
-      return this.childrenWidth;
+    if((this.noOfChildren - 1) <=  n) {
+      return this.getChildrenWidth();
     }
 
-    return totalItemsWidth + (this.gutter*n) + (this.children[n + 1]/2);
+    return totalItemsWidth + (this.gutter*n) + (this.getItemWidth() / 2);
   }
 
   calculateCenterTranslateXAtItem(n) {
+    if(this.isChildrenSmallerThanContainer()) {
+      return this.initialTranslation;
+    }
+
+
     const nextCenter = (this.containerWidth/2) - (
       this.shouldntCenterOneItem() ? this.getCenterPointAt(n) : this.getItemCenterAt(n));
 
@@ -200,7 +208,7 @@ export default class Animator {
   shouldntCenterOneItem() {
     if(this.canCenterOne) {
       // Get width of two items and check if they are smaller than container width
-      const twoItemsWidth = this.children.slice(0, 2).reduce((a, b) => a + b, 0) + this.gutter;
+      const twoItemsWidth =  (this.getItemWidth() * 2) + this.gutter;
       return twoItemsWidth < this.containerWidth;
     }
     return true;
@@ -214,7 +222,7 @@ export default class Animator {
 
     if(isSwippingRight) {
       // Loop until you get the next point at right
-      for (var i = 0; i < this.children.length; i++) {
+      for (var i = 0; i < this.noOfChildren; i++) {
         nextCenter = calculateCenter(i);
 
         if(nextCenter < releaseTranslateX) {
@@ -223,7 +231,7 @@ export default class Animator {
       }
     } else {
       // Loop until you get the previous point at left
-      for (var i = this.children.length - 1; i >= 0; i--) {
+      for (var i = this.noOfChildren - 1; i >= 0; i--) {
         nextCenter = calculateCenter(i);
 
         if(nextCenter > releaseTranslateX) {

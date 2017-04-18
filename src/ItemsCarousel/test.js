@@ -1,4 +1,5 @@
 import React from 'react';
+import { presets } from 'react-motion';
 import Measure from 'react-measure';
 import ItemsCarousel from './index';
 import * as _ from 'lodash';
@@ -7,15 +8,6 @@ import styled from 'styled-components';
 const Wrapper = styled.div`
   max-width: 1200px;
   margin: 0 auto;
-`;
-
-const SlideItem = styled.div`
-  height: 200px;
-  display: flex;
-  background: #333;
-  color: #FFF;
-  align-items: center;
-  justify-content: center;
 `;
 
 const SliderWrapper = styled.div`
@@ -46,58 +38,126 @@ const SliderLeftChevron = styled.div`
   justify-content: center;
 `;
 
+const InputsWrapper = styled.div`
+  margin-top: 50px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+`;
+
+const InputWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+`;
+const Label = styled.div`
+  margin-right: 10px;
+`;
+
+const AppShellItem = styled.div`
+  height: 200px;
+  display: flex;
+  background: #900;
+  color: #FFF;
+  align-items: center;
+  justify-content: center;
+`;
+
+const SlideItem = styled.div`
+  height: 200px;
+  display: flex;
+  background: #333;
+  color: #FFF;
+  align-items: center;
+  justify-content: center;
+`;
+
+
 const createChildren = n => _.range(n).map(i => <SlideItem key={i}>{i+1}</SlideItem>);
 
-class Test extends React.Component {
+export default class Test extends React.Component {
 
   componentWillMount() {
     this.setState({
-      centeredItemIndex: 2,
+      stiffness: presets.noWobble.stiffness,
+      damping:  presets.noWobble.damping,
+      precision: presets.noWobble.precision,
+      children: [],
     });
+
+    setTimeout(() => {
+      this.setState({
+        children: createChildren(10),
+      })
+    }, 2000);
   }
 
-  renderDesktopSlider(centeredItemIndex) {
+  renderDesktopSlider() {
+    const {
+      stiffness,
+      damping,
+      precision,
+      children,
+    } = this.state;
     return (
       <div>
         <h3>Desktop versions</h3>
         <SliderWrapper>
           <ItemsCarousel
-            centeredItemIndex={centeredItemIndex}
-            onCenteredItemChange={(index) => {
-              this.setState({ centeredItemIndex: index });
-            }}
+            disableScrolling
             gutter={12}
+
+            enableAppShell
+            minimumAppShellTime={5000}
+            numberOfShellItems={6}
+            appShellItem={<AppShellItem />}
+
             numberOfCards={6}
+            chevronWidth={24}
+            outsideChevron
+            rightChevron={<div>&#10097;</div>}
+            leftChevron={<div>&#10096;</div>}
+
+            stiffness={stiffness}
+            damping={damping}
+            precision={precision}
           >
-            {createChildren(10)}
+            {children}
           </ItemsCarousel>
-          {centeredItemIndex < (9 - 3) ?
-            <SliderRightChevron
-              onClick={() => {
-                this.setState({ centeredItemIndex: centeredItemIndex === 0 ? 3 : centeredItemIndex + 1 });
-              }}
-            >
-            &#10097;
-            </SliderRightChevron> : null}
-          {centeredItemIndex >= 3 ?
-            <SliderLeftChevron
-              onClick={() => {
-                this.setState({ centeredItemIndex: centeredItemIndex === 9 ? 6 : centeredItemIndex - 1 });
-              }}
-            >
-            &#10096;
-            </SliderLeftChevron> : null}
         </SliderWrapper>
       </div>
     );
   }
 
   renderMobileSlider() {
+    const {
+      stiffness,
+      damping,
+      precision,
+      children,
+    } = this.state;
+
     return (
       <div>
         <h3>Mobile version</h3>
-        <ItemsCarousel canCenterOne={false} firstItemGutter={24} lastItemGutter={24} gutter={12} numberOfCards={2}>
-          {createChildren(10)}
+        <ItemsCarousel
+          freeScrolling
+
+          enableAppShell
+          minimumAppShellTime={5000}
+          numberOfShellItems={6}
+          appShellItem={<AppShellItem />}
+
+          canCenterOne={false}
+          firstItemGutter={24}
+          lastItemGutter={24}
+          gutter={12}
+          numberOfCards={2}
+
+          stiffness={stiffness}
+          damping={damping}
+          precision={precision}
+        >
+          {children}
         </ItemsCarousel>
       </div>
     );
@@ -105,16 +165,37 @@ class Test extends React.Component {
 
   render() {
     const {
-      centeredItemIndex,
+      stiffness,
+      damping,
+      precision,
     } = this.state;
+
     return (
       <Wrapper>
-        <Measure>
-          {({ width }) => width < 1200 ? this.renderMobileSlider() : this.renderDesktopSlider(centeredItemIndex)}
+        <Measure whitelist={['width']}>
+          {({ width}) => width < 1200 ? this.renderMobileSlider() : this.renderDesktopSlider()}
         </Measure>
+        <InputsWrapper>
+          <InputWrapper>
+            <Label>
+              Stiffness
+            </Label>
+            <input type="number" onChange={(e) => this.setState({ stiffness: Number(e.target.value) })} value={stiffness} />
+          </InputWrapper>
+          <InputWrapper>
+            <Label>
+              Damping
+            </Label>
+            <input type="number" onChange={(e) => this.setState({ damping: Number(e.target.value) })} value={damping} />
+          </InputWrapper>
+          <InputWrapper>
+            <Label>
+              Precision
+            </Label>
+            <input onChange={(e) => this.setState({ precision: Number(e.target.value) })} value={precision} />
+          </InputWrapper>
+        </InputsWrapper>
       </Wrapper>
     );
   }
 }
-
-export default () => <Test />;
