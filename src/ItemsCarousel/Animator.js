@@ -51,6 +51,14 @@ export default class Animator {
     return this.containerWidth;
   }
 
+  setCenterExactly(centerExactly) {
+    this.centerExactly = centerExactly;
+  }
+
+  shouldCenterExactly() {
+    return this.centerExactly;
+  }
+
   /**
    * Return true if the list has gone far left
    * @return {Boolean}
@@ -175,7 +183,8 @@ export default class Animator {
     // Pn = pointToCenter
     // In = width of item at n
     const totalItemsWidth = this.getItemWidth() * (n + 1);
-    return totalItemsWidth + (this.gutter*n) + (this.gutter/2);
+    const centerExactlyValue =  this.getItemWidth() / 2 + (this.gutter / 2) + this.getItemWidth() + this.gutter;
+    return totalItemsWidth + (this.gutter*n) + (this.gutter/2) + (this.shouldCenterExactly() ? centerExactlyValue : 0);
   }
 
   getItemCenterAt(n) {
@@ -197,7 +206,6 @@ export default class Animator {
     if(this.isChildrenSmallerThanContainer()) {
       return this.initialTranslation;
     }
-
 
     const nextCenter = (this.containerWidth/2) - (
       this.shouldntCenterOneItem() ? this.getCenterPointAt(n) : this.getItemCenterAt(n));

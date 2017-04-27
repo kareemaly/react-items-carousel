@@ -86,9 +86,9 @@ export default class Test extends React.Component {
 
     setTimeout(() => {
       this.setState({
-        children: createChildren(10),
+        children: createChildren(20),
       })
-    }, 2000);
+    }, 100);
   }
 
   renderDesktopSlider() {
@@ -106,16 +106,19 @@ export default class Test extends React.Component {
             disableScrolling
             gutter={12}
 
-            enableAppShell
-            minimumAppShellTime={5000}
+            enableAppShell={false}
+            minimumAppShellTime={1000}
             numberOfShellItems={6}
             appShellItem={<AppShellItem />}
 
-            numberOfCards={6}
+            numberOfCards={5}
+            slidesToScroll={3}
             chevronWidth={24}
             outsideChevron
             rightChevron={<div>&#10097;</div>}
             leftChevron={<div>&#10096;</div>}
+
+            centerExactly
 
             stiffness={stiffness}
             damping={damping}
@@ -143,7 +146,7 @@ export default class Test extends React.Component {
           freeScrolling
 
           enableAppShell
-          minimumAppShellTime={5000}
+          minimumAppShellTime={100}
           numberOfShellItems={6}
           appShellItem={<AppShellItem />}
 

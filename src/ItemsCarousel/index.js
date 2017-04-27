@@ -122,6 +122,8 @@ export default class ItemsCarousel extends React.Component {
     outsideChevron: React.PropTypes.bool,
     // Number of slides to scroll when chevron is clicked
     slidesToScroll:  React.PropTypes.number,
+
+    centerExactly: React.PropTypes.bool,
   };
 
   static defaultProps = {
@@ -138,6 +140,7 @@ export default class ItemsCarousel extends React.Component {
     enableAppShell: true,
     minimumAppShellTime: 0,
     numberOfShellItems: 4,
+    centerExactly: false,
   };
 
   constructor(props) {
@@ -190,6 +193,7 @@ export default class ItemsCarousel extends React.Component {
   }
 
   updateAnimatorFromProps(props, animator) {
+    animator.setCenterExactly(props.centerExactly);
     animator.setNumberOfChildren(props.children.length);
     animator.setNumberOfCards(props.numberOfCards);
     animator.setGutter(props.gutter);
@@ -357,10 +361,10 @@ export default class ItemsCarousel extends React.Component {
 
     const isAppShellMode = this.isAppShellMode({ enableAppShell, children }, { forceShowAppShell });
 
-    const showRightChevron = !isAppShellMode && rightChevron && centeredItemIndex < children.length - 1;
-    const showLeftChevron = !isAppShellMode && leftChevron && centeredItemIndex > 0;
-
     const numberOfSlidesToScroll = slidesToScroll || numberOfCards;
+
+    const showRightChevron = !isAppShellMode && rightChevron && centeredItemIndex < children.length - numberOfCards;
+    const showLeftChevron = !isAppShellMode && leftChevron && centeredItemIndex > 0;
 
     return (
       <ChevronsWrapper

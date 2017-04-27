@@ -65,7 +65,7 @@ export default class ItemsCarouselList extends React.Component {
           </SliderItem>
         ))}
         {freeScrollingLastItemGutter > 0 ?
-          <div style={{ fontSize: 0.1 }}>a</div> : null}
+          <div style={{ fontSize: 2 }}>a</div> : null}
       </SliderItemsWrapper>
     );
   }
