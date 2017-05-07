@@ -20,6 +20,7 @@
     "prebuild": "npm run doc",
     "build": "webpack --config webpack.prod.config --progress --colors -p",
     "start": "node server.js",
+    "preversion": "npm run build && git add --all && git commit -m 'Building package'",
     "lint": "eslint src"
   },
   "keywords": [
@@ -54,6 +55,7 @@
   "dependencies": {
     "inline-style-prefixer": "^2.0.5",
     "lodash.differenceby": "^4.8.0",
+    "prop-types": "^15.5.8",
     "react": "15.3.2",
     "react-hammerjs": "^0.5.0",
     "react-measure": "^1.4.6",

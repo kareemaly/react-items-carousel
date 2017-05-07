@@ -16,24 +16,59 @@ Example
 ```javascript
 import React from 'react';
 import ItemsCarousel from 'react-items-carousel';
+import range from 'lodash/range';
 
 export default class Test extends React.Component {
-  createSlideItem(number) {
-    return (
-      <div style={{ height: 200, background: '#333' }}>{number}</div>
-    );
+
+  componentWillMount() {
+    this.setState({
+      children: [],
+      activeItemIndex: 0,
+    });
+
+    setTimeout(() => {
+      this.setState({
+        children: createChildren(20),
+      })
+    }, 100);
   }
 
+  createChildren = n => range(n).map(i => <div key={i} style={{ height: 200, background: '#333' }}>{i}</div>);
+
+  changeActiveItem = (activeItemIndex) => this.setState({ activeItemIndex });
+
   render() {
+    const {
+      activeItemIndex,
+      children,
+    } = this.state;
+
     return (
-      <ItemsCarousel canCenterOne={false} firstItemGutter={24} lastItemGutter={24} gutter={12} numberOfCards={2}>
-        {this.createSlideItem(1)}
-        {this.createSlideItem(2)}
-        {this.createSlideItem(3)}
-        {this.createSlideItem(4)}
-        {this.createSlideItem(5)}
-        {this.createSlideItem(6)}
-        {this.createSlideItem(7)}
+      <ItemsCarousel
+        // Placeholder configurations
+        enablePlaceholder
+        numberOfPlaceholderItems={5}
+        minimumPlaceholderTime={1000}
+        placeholderItem={<div style={{ height: 200, background: '#900' }}>Placeholder</div>}
+
+        // Carousel configurations
+        numberOfCards={3}
+        gutter={12}
+        showSlither={true}
+        firstAndLastGutter={true}
+        freeScrolling={false}
+
+        // Active item configurations
+        requestToChangeActive={this.changeActiveItem}
+        activeItemIndex={activeItemIndex}
+        activePosition={'center'}
+
+        chevronWidth={24}
+        rightChevron={'>'}
+        leftChevron={'<'}
+        outsideChevron={false}
+      >
+        {children}
       </ItemsCarousel>
     );  
   }
@@ -44,34 +79,22 @@ export default class Test extends React.Component {
 
 | Property | Type | Default | Description |
 | --- | --- | --- | --- |
-| resistanceCoeffiecent | number | 0.5 | Use this to control the resistance when the user release the swipe<br />More resistance means the slider will take shorter path to stop
-@type {number} |
-| springConfig | shape (stiffness, precision, damping) | presets.noWobble |  |
-| children* | array |  |  |
-| disableScrolling | bool |  |  |
-| freeScrolling | bool |  |  |
-| safeMargin | number | 100 | Safe margin to use<br />@type {number} |
-| gutter | number | 0 | Gutter between items<br />@type {number} |
-| initialTranslation | number | 0 | This is particallary not useful<br />@ignore
-@type {number} |
-| numberOfCards | number | 3.5 | Define the number of cards to show<br />@type {number} |
-| firstItemGutter | number | 0 | Define the gutter of the first item<br />@type {number} |
-| lastItemGutter | number | 0 | Define the gutter of the last item<br />@type {number} |
-| centeredItemIndex | number | 0 | This gives control to change the centeredItemIndex from outside<br />If this is given then you should update it by listening onCenteredItemChange
-@type {number} |
-| onCenteredItemChange | func |  | This is called when the centered item index change<br />@type {func} |
-| canCenterOne | bool | true | If this is true then when two items are greater than the container width then<br />it will center one item
-@type {bool} |
-| enableAppShell | bool | true |  |
-| appShellItem | element |  |  |
-| minimumAppShellTime | number | 0 |  |
-| numberOfShellItems | number | 4 |  |
-| rightChevron | element |  |  |
-| leftChevron | element |  |  |
-| chevronWidth | number |  |  |
-| outsideChevron | bool |  |  |
-| slidesToScroll | number |  |  |
-| centerExactly | bool | false |  |
+| children* | arrayOf (element) |  | Carousel react items. |
+| numberOfCards | number | 3 | Number of cards to show. |
+| gutter | number | 0 | Space between carousel items. |
+| showSlither | bool | false | If true a slither of next item will be showed. |
+| firstAndLastGutter | bool | false | If true first item will have twice the |
+| freeScrolling | bool | false | If true, free scrolling will be enabled. |
+| enablePlaceholder | bool | false | Enable placeholder items while data loads |
+| placeholderItem | element |  | Placeholder item. Ignored if enablePlaceholder is false. |
+| numberOfPlaceholderItems | number |  | Number of placeholder items. Ignored if enablePlaceholder is false. |
+| requestToChangeActive | func |  | This is called when we want to change the active item.<br />Right now we will never call this unless a left or right chevrons are clicked. |
+| activeItemIndex | number | 0 | This gives you the control to change the current active item.<br />This is ignored if freeScrolling is true. |
+| activePosition | enum ('left', 'center', 'right') | 'left' | The active item position.<br />This is ignored if freeScrolling is true. |
+| rightChevron | union (<br />element,<br />string<br />) |  | Right chevron element. If passed `requestToChangeActive` must be set. |
+| leftChevron | union (<br />element,<br />string<br />) |  | Left chevron element. If passed `requestToChangeActive` must be set. |
+| chevronWidth | number |  | Chevron width. |
+| outsideChevron | bool |  | If true the chevron will be outside the carousel. |
 
 Contributing
 --------------

@@ -1,29 +1,42 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Motion, spring, presets } from 'react-motion';
 import Measure from 'react-measure';
-import styled, { injectGlobal } from 'styled-components';
+import styled from 'styled-components';
 import range from 'lodash/range';
-import Animator from './Animator';
-import ItemsCarouselList from './ItemsCarouselList';
+import PlaceholderCarousel from './PlaceholderCarousel';
+import {
+  calculateItemWidth,
+  calculateItemLeftGutter,
+  calculateItemRightGutter,
+  calculateTranslateX,
+  showLeftChevron,
+  showRightChevron,
+  calculateNextIndex,
+  calculatePreviousIndex,
+} from './helpers';
 
-const ChevronsWrapper = styled.div`
-  ${(props) => props.hasChevron ? `position: relative`: ''}
+const CarouselWrapper = styled.div`
+  position: relative;
 `;
 
-const SliderWrapper = styled.div`
+const Wrapper = styled.div`
   width: 100%;
-  overflow-x: ${(props) => !props.isAppShellMode && !props.disableScrolling && props.freeScrolling ? 'scroll' : 'hidden'};
-  -webkit-overflow-scrolling: touch;
-  ::-webkit-scrollbar {
-    display: none;
-    width: 0px;
-    background: rgba(0, 0, 0, 0);
-  }
+  overflow-x: ${(props) => props.freeScrolling ? 'scroll' : 'hidden'};
 `;
 
-const SliderInnerWrapper = styled.div`
-  margin-left: ${(props) => props.firstItemGutter}px;
-  margin-right: ${(props) => props.lastItemGutter}px;
+const SliderItemsWrapper = styled.div`
+  width: 100%;
+  display: flex;
+  flex-wrap: nowrap;
+  transform: translateX(-${(props) => props.translateX}px);
+`;
+
+const SliderItem = styled.div`
+  width: ${(props) => props.width}px;
+  flex-shrink: 0;
+  padding-right: ${(props) => props.rightGutter}px;
+  padding-left: ${(props) => props.leftGutter}px;
 `;
 
 const CarouselRightChevron = styled.div`
@@ -44,383 +57,310 @@ const CarouselLeftChevron = styled(CarouselRightChevron)`
   right: 0px;
 `;
 
-export default class ItemsCarousel extends React.Component {
-  static propTypes = {
-    /**
-     * Use this to control the resistance when the user release the swipe
-     * More resistance means the slider will take shorter path to stop
-     * @type {number}
-     */
-    resistanceCoeffiecent: React.PropTypes.number,
-    springConfig: React.PropTypes.shape({
-      stiffness: React.PropTypes.number,
-      precision: React.PropTypes.number,
-      damping: React.PropTypes.number,
-    }),
-    children: React.PropTypes.array.isRequired,
-    disableScrolling: React.PropTypes.bool,
-    freeScrolling: React.PropTypes.bool,
-    /**
-     * Safe margin to use
-     * @type {number}
-     */
-    safeMargin: React.PropTypes.number,
-    /**
-     * Gutter between items
-     * @type {number}
-     */
-    gutter: React.PropTypes.number,
-    /**
-     * This is particallary not useful
-     * @ignore
-     * @type {number}
-     */
-    initialTranslation: React.PropTypes.number,
-    /**
-     * Define the number of cards to show
-     * @type {number}
-     */
-    numberOfCards: React.PropTypes.number,
-    /**
-     * Define the gutter of the first item
-     * @type {number}
-     */
-    firstItemGutter: React.PropTypes.number,
-    /**
-     * Define the gutter of the last item
-     * @type {number}
-     */
-    lastItemGutter: React.PropTypes.number,
-    /**
-     * This gives control to change the centeredItemIndex from outside
-     * If this is given then you should update it by listening onCenteredItemChange
-     * @type {number}
-     */
-    centeredItemIndex: React.PropTypes.number,
-    /**
-     * This is called when the centered item index change
-     * @type {func}
-     */
-    onCenteredItemChange: React.PropTypes.func,
-    /**
-     * If this is true then when two items are greater than the container width then
-     * it will center one item
-     * @type {bool}
-     */
-    canCenterOne: React.PropTypes.bool,
-
-    // AppShell configurations
-    enableAppShell: React.PropTypes.bool,
-    appShellItem: React.PropTypes.element,
-    minimumAppShellTime: React.PropTypes.number,
-    numberOfShellItems: React.PropTypes.number,
-
-    // Chevron configurations
-    rightChevron: React.PropTypes.element,
-    leftChevron: React.PropTypes.element,
-    chevronWidth: React.PropTypes.number,
-    outsideChevron: React.PropTypes.bool,
-    // Number of slides to scroll when chevron is clicked
-    slidesToScroll:  React.PropTypes.number,
-
-    centerExactly: React.PropTypes.bool,
-  };
-
-  static defaultProps = {
-    resistanceCoeffiecent: 0.5,
-    springConfig: presets.noWobble,
-    gutter: 0,
-    safeMargin: 100,
-    initialTranslation: 0,
-    numberOfCards: 3.5,
-    firstItemGutter: 0,
-    lastItemGutter: 0,
-    centeredItemIndex: 0,
-    canCenterOne: true,
-    enableAppShell: true,
-    minimumAppShellTime: 0,
-    numberOfShellItems: 4,
-    centerExactly: false,
-  };
-
-  constructor(props) {
-    super(props);
-
-    this.animator = new Animator();
-    this.appShellAnimator = new Animator();
-
-    this.updateAnimatorFromProps(props, this.animator);
-    this.updateAnimatorFromProps(props, this.appShellAnimator);
-
-    const hasMinimumAppShellTime = props.enableAppShell && props.children.length === 0 && props.minimumAppShellTime > 0;
-
-    this.state = {
-      translateX: 0,
-      centeredItemIndex: 0,
-      isReady: false,
-      lastSwipe: {},
-      startSwipe: {},
-      // Force show app shell if minimum app shell time was greater than zero
-      forceShowAppShell: hasMinimumAppShellTime,
-    };
-
-    // Add timer to unset forceShowAppShell state variable after the minimum app shell time
-    if(hasMinimumAppShellTime) {
-      this.timer = setTimeout(() => {
-        this.setState({
-          forceShowAppShell: false,
-        });
-      }, this.props.minimumAppShellTime);
-    }
-
-    // When animator says that children are ready (there widths have been calculated)
-    this.animator.whenReady(() => {
-      this.setState({
-        isReady: true,
-        ...this.getCenterItemState(this.props.centeredItemIndex)
-      });
+class ItemsCarousel extends React.Component {
+  componentWillMount() {
+    this.setState({
+      containerWidth: 0,
+      isPlaceholderMode: this.props.enablePlaceholder && this.props.children.length === 0,
     });
-  }
 
-  componentWillReceiveProps(nextProps) {
-    this.updateAnimatorFromProps(nextProps, this.animator);
-    this.updateAnimatorFromProps(nextProps, this.appShellAnimator);
-
-    if(! this.isAppShellMode(nextProps, this.state)
-      && nextProps.centeredItemIndex !== this.state.centeredItemIndex) {
-      this.centerItem(nextProps.centeredItemIndex);
-    }
-  }
-
-  updateAnimatorFromProps(props, animator) {
-    animator.setCenterExactly(props.centerExactly);
-    animator.setNumberOfChildren(props.children.length);
-    animator.setNumberOfCards(props.numberOfCards);
-    animator.setGutter(props.gutter);
-    animator.setSafeMargin(props.safeMargin);
-    animator.setInitialTranslation(props.initialTranslation);
-    animator.setResistanceCoeffiecent(props.resistanceCoeffiecent);
-    animator.setCanCenterOne(props.canCenterOne);
-  }
-
-  componentWillUpdate(nextProps, nextState) {
-    if(nextProps.onCenteredItemChange && 
-      nextState.centeredItemIndex !== this.state.centeredItemIndex) {
-      nextProps.onCenteredItemChange(nextState.centeredItemIndex);
-    }
+    this.startPlaceholderMinimumTimer();
   }
 
   componentWillUnmount() {
-    clearTimeout(this.timer);
+    if(this.placeholderTimer) {
+      clearTimeout(this.placeholderTimer);
+    }
   }
 
-  getPosition(e) {
-    const posX = (e.touches !== undefined && e.touches[0]) ? e.touches[0].pageX : e.clientX;
-    const posY = (e.touches !== undefined && e.touches[0]) ? e.touches[0].pageY : e.clientY;
-
-    return { posX, posY };    
+  componentWillReceiveProps(nextProps) {
+    // Data loaded and no timer to deactivate placeholder mode
+    if(nextProps.children.length > 0 && this.props.children.length === 0 && !this.placeholderTimer) {
+      this.setState({ isPlaceholderMode: false });
+    }
   }
 
-  getCenterItemState(index) {
-    return {
-      translateX: this.animator.calculateCenterTranslateXAtItem(index),
-      centeredItemIndex: index,
-    };
+  startPlaceholderMinimumTimer = () => {
+    if(! this.props.minimumPlaceholderTime) {
+      return;
+    }
+
+    this.placeholderTimer = setTimeout(() => {
+      this.placeholderTimer = null;
+      if(this.props.children.length > 0) {
+        this.setState({ isPlaceholderMode: false });
+      }
+    }, this.props.minimumPlaceholderTime);
   }
 
-  centerItem(index) {
-    this.setState(this.getCenterItemState(index));
-  }
+  getInitialFrame = ({ translateX }) => ({
+    translateX,
+  });
 
-  onSwipeStart = (e) => {
-    this.animator.startDrag();
+  calculateNextFrame = ({ translateX, springConfig }) => ({
+    translateX: spring(translateX, springConfig),
+  });
 
-    const { posX, posY } = this.getPosition(e);
-
-    window.requestAnimationFrame(() => {
-      this.setState({
-        startSwipe: { posX, posY },
-      });
-    });
-  }
-
-  onSwipeEnd = () => {
-    const deltaX = this.state.lastSwipe.posX - this.state.startSwipe.posX;
-    this.animator.endDrag();
-
-    const centeredItemIndex = this.animator.getSwipeReleaseCenterItemIndex(deltaX);
-
-    // 
-    window.requestAnimationFrame(() => {
-      this.setState({
-        translateX: this.animator.calculateCenterTranslateXAtItem(centeredItemIndex),
-        centeredItemIndex,
-      });
-    });
-  }
-
-  onSwipe = (e) => {
-    const { posX, posY } = this.getPosition(e);
-    const deltaX = posX - this.state.startSwipe.posX;
-
-    window.requestAnimationFrame(() => {
-      this.setState({
-        translateX: this.animator.calculateSwipeTranslateX(deltaX),
-        lastSwipe: { posX, posY },
-      });
-    });
-  }
-
-  getInitialFrame() {
-    return {
-      translateX: this.state.translateX,
-    };
-  }
-
-  calculateNextFrame() {
-    return {
-      translateX: spring(this.state.translateX, this.props.springConfig),
-    };
-  }
-
-  renderList = ({ translateX }) => {
+  renderList({ translateX }) {
     const {
       gutter,
       freeScrolling,
-      lastItemGutter,
+      numberOfCards,
+      firstAndLastGutter,
       children,
-      appShellItem,
-      numberOfShellItems,
-      enableAppShell,
+      showSlither,
     } = this.props;
 
     const {
-      isReady,
-      forceShowAppShell,
+      containerWidth,
     } = this.state;
 
-    const isAppShellMode = this.isAppShellMode({ enableAppShell, children }, { forceShowAppShell });
-    const animator = isAppShellMode ? this.appShellAnimator : this.animator;
-    const items = isAppShellMode ? range(numberOfShellItems).map(i => appShellItem) : children;
-
-    animator.setCurrentTranslateX(translateX);
-
-    // Need to add last item gutter when it's free scrolling and children smaller than container
-    const freeScrollingLastItemGutter = freeScrolling && !animator.isChildrenSmallerThanContainer() ? lastItemGutter : 0;
-
     return (
-      <ItemsCarouselList
-        translateX={translateX}
-        freeScrollingLastItemGutter={freeScrollingLastItemGutter}
-        gutter={gutter}
-        isReady={isReady}
-        animator={animator}
-        children={items}
-      />
+      <Measure
+        whitelist={['width']}
+        onMeasure={({ width }) => {
+          this.setState({ containerWidth: width });
+        }}
+      >
+        <Wrapper
+          freeScrolling={freeScrolling}
+        >
+          <SliderItemsWrapper
+            translateX={translateX}
+          >
+            {children.map((child, index) => (
+              <SliderItem
+                key={index}
+                width={calculateItemWidth({
+                  firstAndLastGutter,
+                  containerWidth,
+                  gutter,
+                  numberOfCards,
+                  showSlither,
+                })}
+                leftGutter={calculateItemLeftGutter({
+                  index,
+                  firstAndLastGutter,
+                  gutter,
+                })}
+                rightGutter={calculateItemRightGutter({
+                  index,
+                  firstAndLastGutter,
+                  gutter,
+                  numberOfChildren: children.length,
+                })}
+              >
+                {child}
+              </SliderItem>
+            ))}
+          </SliderItemsWrapper>
+        </Wrapper>
+      </Measure>
     );
-  }
-
-  isAppShellMode({ enableAppShell, children }, { forceShowAppShell }) {
-    return enableAppShell && (children.length === 0 || forceShowAppShell);
-  }
-
-  getLimitIndex(index, children) {
-    if(index < 0) {
-      return 0;
-    }
-    if(index > children.length - 1) {
-      return children.length - 1;
-    }
-    return index;
   }
 
   render() {
     const {
       gutter,
-      children,
-      firstItemGutter,
-      lastItemGutter,
-      disableScrolling,
       freeScrolling,
-      enableAppShell,
       numberOfCards,
+      firstAndLastGutter,
+      children,
+      activeItemIndex,
+      activePosition,
+      springConfig,
+      showSlither,
       rightChevron,
       leftChevron,
       chevronWidth,
       outsideChevron,
-      style,
-      className,
-      slidesToScroll,
-      ...props,
+      requestToChangeActive,
     } = this.props;
 
     const {
-      forceShowAppShell,
-      centeredItemIndex,
+      containerWidth,
+      isPlaceholderMode,
     } = this.state;
 
-    const isAppShellMode = this.isAppShellMode({ enableAppShell, children }, { forceShowAppShell });
+    if(isPlaceholderMode) {
+      return <PlaceholderCarousel {...this.props} />
+    }
 
-    const numberOfSlidesToScroll = slidesToScroll || numberOfCards;
+    if(freeScrolling) {
+      return this.renderList({ translateX: 0 });
+    }
 
-    const showRightChevron = !isAppShellMode && rightChevron && centeredItemIndex < children.length - numberOfCards;
-    const showLeftChevron = !isAppShellMode && leftChevron && centeredItemIndex > 0;
+    const translateX = calculateTranslateX({
+      activeItemIndex,
+      activePosition,
+      containerWidth,
+      numberOfChildren: children.length,
+      numberOfCards,
+      gutter,
+      firstAndLastGutter,
+      showSlither,
+    });
+
+    const _showRightChevron = rightChevron && showRightChevron({
+      activeItemIndex,
+      activePosition,
+      numberOfChildren: children.length,
+      numberOfCards,
+    });
+
+    const _showLeftChevron = leftChevron && showLeftChevron({
+      activeItemIndex,
+      activePosition,
+      numberOfChildren: children.length,
+      numberOfCards,
+    });
 
     return (
-      <ChevronsWrapper
-        style={style}
-        className={className}
-        hasChevron={showLeftChevron || showRightChevron}
-      >
-        <SliderWrapper
-          isAppShellMode={isAppShellMode}
-          disableScrolling={disableScrolling}
-          freeScrolling={freeScrolling}
-          onTouchEnd={freeScrolling || disableScrolling ? undefined : this.onSwipeEnd}
-          onTouchMove={freeScrolling || disableScrolling ? undefined : this.onSwipe}
-          onTouchStart={freeScrolling || disableScrolling ? undefined : this.onSwipeStart}
-        >
-          <SliderInnerWrapper
-            firstItemGutter={firstItemGutter}
-            lastItemGutter={lastItemGutter}
-          >
-            <Measure
-              whitelist={['width']}
-              onMeasure={({ width }) => {
-                this.animator.setContainerWidth(width);
-                this.appShellAnimator.setContainerWidth(width);
-                this.setState({ update: true });
-              }}
-            >
-              <Motion
-                defaultStyle={this.getInitialFrame()}
-                style={this.calculateNextFrame()}
-                children={this.renderList}
-              />
-            </Measure>
-          </SliderInnerWrapper>
-        </SliderWrapper>
+      <CarouselWrapper>
+        <Motion
+          defaultStyle={this.getInitialFrame({ translateX, springConfig })}
+          style={this.calculateNextFrame({ translateX, springConfig })}
+          children={({ translateX }) => this.renderList({ translateX })}
+        />
         {
-          showRightChevron && 
+          _showRightChevron && 
           <CarouselRightChevron
             chevronWidth={chevronWidth}
             outsideChevron={outsideChevron}
-            onClick={() => this.centerItem(this.getLimitIndex(centeredItemIndex + numberOfSlidesToScroll, children))}
+            onClick={() => requestToChangeActive(calculateNextIndex({
+              activePosition,
+              activeItemIndex,
+              numberOfCards,
+              numberOfChildren: children.length,
+            }))}
           >
             {rightChevron}
           </CarouselRightChevron>
         }
         {
-          showLeftChevron && 
+          _showLeftChevron && 
           <CarouselLeftChevron
             chevronWidth={chevronWidth}
             outsideChevron={outsideChevron}
-            onClick={() => this.centerItem(this.getLimitIndex(centeredItemIndex - numberOfSlidesToScroll, children))}
+            onClick={() => requestToChangeActive(calculatePreviousIndex({
+              activePosition,
+              activeItemIndex,
+              numberOfCards,
+              numberOfChildren: children.length,
+            }))}
           >
             {leftChevron}
           </CarouselLeftChevron>
         }
-      </ChevronsWrapper>
+      </CarouselWrapper>
     );
   }
 }
+
+ItemsCarousel.propTypes = {
+  /**
+   * Carousel react items.
+   */
+  children: PropTypes.arrayOf(PropTypes.element).isRequired,
+
+  /**
+   * Number of cards to show.
+   */
+  numberOfCards: PropTypes.number,
+
+  /**
+   * Space between carousel items.
+   */
+  gutter: PropTypes.number,
+
+  /**
+   * If true a slither of next item will be showed.
+   */
+  showSlither: PropTypes.bool,
+
+  /**
+   * If true first item will have twice the 
+   */
+  firstAndLastGutter: PropTypes.bool,
+
+  /**
+   * If true, free scrolling will be enabled.
+   */
+  freeScrolling: PropTypes.bool,
+
+  /**
+   * Enable placeholder items while data loads
+   */
+  enablePlaceholder: PropTypes.bool,
+
+  /**
+   * Placeholder item. Ignored if enablePlaceholder is false.
+   */
+  placeholderItem: PropTypes.element,
+
+  /**
+   * Number of placeholder items. Ignored if enablePlaceholder is false.
+   */
+  numberOfPlaceholderItems: PropTypes.number,
+
+  /**
+   * This is called when we want to change the active item.
+   * Right now we will never call this unless a left or right chevrons are clicked.
+   */
+  requestToChangeActive: PropTypes.func,
+
+  /**
+   * This gives you the control to change the current active item.
+   * This is ignored if freeScrolling is true.
+   */
+  activeItemIndex: PropTypes.number,
+
+  /**
+   * The active item position.
+   * This is ignored if freeScrolling is true.
+   */
+  activePosition: PropTypes.oneOf([
+    'left',
+    'center',
+    'right',
+  ]),
+
+  /**
+   * Right chevron element. If passed `requestToChangeActive` must be set.
+   */
+  rightChevron: PropTypes.oneOfType([
+    PropTypes.element,
+    PropTypes.string,
+  ]),
+
+  /**
+   * Left chevron element. If passed `requestToChangeActive` must be set.
+   */
+  leftChevron: PropTypes.oneOfType([
+    PropTypes.element,
+    PropTypes.string,
+  ]),
+
+  /**
+   * Chevron width.
+   */
+  chevronWidth: PropTypes.number,
+
+  /**
+   * If true the chevron will be outside the carousel.
+   */
+  outsideChevron: PropTypes.bool,
+};
+
+ItemsCarousel.defaultProps = {
+  numberOfCards: 3,
+  gutter: 0,
+  firstAndLastGutter: false,
+  showSlither: false,
+  freeScrolling: false,
+  enablePlaceholder: false,
+  activeItemIndex: 0,
+  activePosition: 'left',
+};
+
+export default ItemsCarousel;

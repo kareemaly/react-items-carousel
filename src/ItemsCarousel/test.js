@@ -1,59 +1,17 @@
 import React from 'react';
 import { presets } from 'react-motion';
 import Measure from 'react-measure';
-import ItemsCarousel from './index';
-import * as _ from 'lodash';
 import styled from 'styled-components';
+import * as _ from 'lodash';
+import ItemsCarousel from './index';
 
 const Wrapper = styled.div`
   max-width: 1200px;
   margin: 0 auto;
+  background: #EEE;
 `;
 
-const SliderWrapper = styled.div`
-  position: relative;
-`;
-
-const SliderRightChevron = styled.div`
-  position: absolute;
-  height: 100%;
-  width: 20px;
-  background: #FFF;
-  right: -20px;
-  top: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;
-
-const SliderLeftChevron = styled.div`
-  position: absolute;
-  height: 100%;
-  width: 20px;
-  background: #FFF;
-  left: -20px;
-  top: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;
-
-const InputsWrapper = styled.div`
-  margin-top: 50px;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-`;
-
-const InputWrapper = styled.div`
-  display: flex;
-  flex-direction: row;
-`;
-const Label = styled.div`
-  margin-right: 10px;
-`;
-
-const AppShellItem = styled.div`
+const PlaceholderItem = styled.div`
   height: 200px;
   display: flex;
   background: #900;
@@ -71,17 +29,28 @@ const SlideItem = styled.div`
   justify-content: center;
 `;
 
+const ItemButton = styled.div`
+  padding: 20px;
+  background: ${(props) => props.isActive ? '#900' : '#333'};
+  color: #FFF;
+  margin-right: 20px;
+  margin-bottom: 20px;
+`;
+
+const ButtonsWrapper = styled.div`
+  display: flex;
+  margin: 20px;
+  flex-wrap: wrap;
+`;
 
 const createChildren = n => _.range(n).map(i => <SlideItem key={i}>{i+1}</SlideItem>);
 
-export default class Test extends React.Component {
+export class ItemsCarouselTest extends React.Component {
 
   componentWillMount() {
     this.setState({
-      stiffness: presets.noWobble.stiffness,
-      damping:  presets.noWobble.damping,
-      precision: presets.noWobble.precision,
       children: [],
+      activeItemIndex: 0,
     });
 
     setTimeout(() => {
@@ -91,114 +60,52 @@ export default class Test extends React.Component {
     }, 100);
   }
 
-  renderDesktopSlider() {
-    const {
-      stiffness,
-      damping,
-      precision,
-      children,
-    } = this.state;
-    return (
-      <div>
-        <h3>Desktop versions</h3>
-        <SliderWrapper>
-          <ItemsCarousel
-            disableScrolling
-            gutter={12}
-
-            enableAppShell={false}
-            minimumAppShellTime={1000}
-            numberOfShellItems={6}
-            appShellItem={<AppShellItem />}
-
-            numberOfCards={5}
-            slidesToScroll={3}
-            chevronWidth={24}
-            outsideChevron
-            rightChevron={<div>&#10097;</div>}
-            leftChevron={<div>&#10096;</div>}
-
-            centerExactly
-
-            stiffness={stiffness}
-            damping={damping}
-            precision={precision}
-          >
-            {children}
-          </ItemsCarousel>
-        </SliderWrapper>
-      </div>
-    );
-  }
-
-  renderMobileSlider() {
-    const {
-      stiffness,
-      damping,
-      precision,
-      children,
-    } = this.state;
-
-    return (
-      <div>
-        <h3>Mobile version</h3>
-        <ItemsCarousel
-          freeScrolling
-
-          enableAppShell
-          minimumAppShellTime={100}
-          numberOfShellItems={6}
-          appShellItem={<AppShellItem />}
-
-          canCenterOne={false}
-          firstItemGutter={24}
-          lastItemGutter={24}
-          gutter={12}
-          numberOfCards={2}
-
-          stiffness={stiffness}
-          damping={damping}
-          precision={precision}
-        >
-          {children}
-        </ItemsCarousel>
-      </div>
-    );
-  }
+  changeActiveItem = (activeItemIndex) => this.setState({ activeItemIndex });
 
   render() {
     const {
-      stiffness,
-      damping,
-      precision,
+      activeItemIndex,
+      children,
     } = this.state;
 
     return (
       <Wrapper>
-        <Measure whitelist={['width']}>
-          {({ width}) => width < 1200 ? this.renderMobileSlider() : this.renderDesktopSlider()}
-        </Measure>
-        <InputsWrapper>
-          <InputWrapper>
-            <Label>
-              Stiffness
-            </Label>
-            <input type="number" onChange={(e) => this.setState({ stiffness: Number(e.target.value) })} value={stiffness} />
-          </InputWrapper>
-          <InputWrapper>
-            <Label>
-              Damping
-            </Label>
-            <input type="number" onChange={(e) => this.setState({ damping: Number(e.target.value) })} value={damping} />
-          </InputWrapper>
-          <InputWrapper>
-            <Label>
-              Precision
-            </Label>
-            <input onChange={(e) => this.setState({ precision: Number(e.target.value) })} value={precision} />
-          </InputWrapper>
-        </InputsWrapper>
+        <ItemsCarousel
+          // Placeholder configurations
+          placeholderItem={<PlaceholderItem />}
+          enablePlaceholder
+          numberOfPlaceholderItems={5}
+          minimumPlaceholderTime={1000}
+
+          // Carousel configurations
+          numberOfCards={3}
+          gutter={12}
+          showSlither={false}
+          firstAndLastGutter={true}
+          freeScrolling={false}
+
+          // Active item configurations
+          requestToChangeActive={this.changeActiveItem}
+          activeItemIndex={activeItemIndex}
+          activePosition={'right'}
+
+          chevronWidth={24}
+          rightChevron={'>'}
+          leftChevron={'<'}
+          outsideChevron
+
+          children={children}
+        />
+        <ButtonsWrapper>
+          {children.map((item, index) => (
+            <ItemButton isActive={index === activeItemIndex} onClick={() => this.changeActiveItem(index)} key={index}>
+              {index + 1}
+            </ItemButton>
+          ))}
+        </ButtonsWrapper>
       </Wrapper>
     );
   }
 }
+
+export default ItemsCarouselTest;

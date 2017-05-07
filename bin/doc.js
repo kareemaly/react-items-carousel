@@ -24,6 +24,30 @@ glob(path.join(__dirname, '../src/*/index.js'), function(err, files) {
 Contributing${pieces[1]}`);
 });
 
+
+const propTypeToString = (type) => {
+  let propertyType = type.name;
+
+  if(type.name === 'arrayOf') {
+    propertyType += ` (${propTypeToString(type.value)})`;
+  }
+
+  if(type.name === 'shape') {
+    const shapeString = _.keys(type.value).map(key => '`' + key + ': ' + type.value[key].name + '`').join('<br />');
+    propertyType += ` {<br />${shapeString}<br />}`;
+  }
+
+  if(type.name === 'enum') {
+    propertyType += ` (${type.value.map(val => val.value).join(', ')})`;
+  }
+
+  if(type.name === 'union') {
+    propertyType += ` (<br />${type.value.map(propTypeToString).join(',<br />')}<br />)`;
+  }
+
+  return propertyType;
+}
+
 const getComponentReadmeProps = (component) => {
   const componentInfo = reactDocs.parse(component);
 
@@ -32,21 +56,13 @@ const getComponentReadmeProps = (component) => {
 
   for(const propertyName in componentInfo.props) {
     const propInfo = componentInfo.props[propertyName];
-    let propertyType = propInfo.type.name;
     const propertyRequired = propInfo.required;
     const propertyDefault = propInfo.defaultValue ? propInfo.defaultValue.value : '';
     const propertyDescription = propInfo.description;
-
-    if(propertyType === 'arrayOf') {
-      propertyType += ` (${propInfo.type.value.name})`;
-    }
-
-    if(propertyType === 'shape') {
-      propertyType += ` (${_.keys(propInfo.type.value).join(', ')})`;
-    }
+    const propertyType = propTypeToString(propInfo.type);
 
     readmeProps += `
-| ${propertyName}${propertyRequired ? '*' : ''} | ${propertyType} | ${propertyDefault} | ${propertyDescription.replace('|', ':').replace('\n', '<br />')} |`;
+| ${propertyName}${propertyRequired ? '*' : ''} | ${propertyType} | ${propertyDefault} | ${propertyDescription.replace('|', ':').replace(/\n/g,'<br />')} |`;
   }
 
   return readmeProps;
