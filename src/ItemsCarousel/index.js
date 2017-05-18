@@ -18,11 +18,15 @@ import {
 
 const CarouselWrapper = styled.div`
   position: relative;
+  /* This is necessary to hide scrollbars in free scrolling mode */
+  ${(props) => props.freeScrolling && `overflow: hidden;`}
+  ${(props) => props.height && `height: ${props.height}px;`}
 `;
 
 const Wrapper = styled.div`
   width: 100%;
   overflow-x: ${(props) => props.freeScrolling ? 'scroll' : 'hidden'};
+  -webkit-overflow-scrolling: touch;
 `;
 
 const SliderItemsWrapper = styled.div`
@@ -35,26 +39,27 @@ const SliderItemsWrapper = styled.div`
 const SliderItem = styled.div`
   width: ${(props) => props.width}px;
   flex-shrink: 0;
-  padding-right: ${(props) => props.rightGutter}px;
-  padding-left: ${(props) => props.leftGutter}px;
+  margin-right: ${(props) => props.rightGutter}px;
+  margin-left: ${(props) => props.leftGutter}px;
 `;
 
-const CarouselRightChevron = styled.div`
+const CarouselChevron = styled.div`
   position: absolute;
   height: 100%;
   width: ${(props) => props.chevronWidth + 1}px;
   cursor: pointer;
-  background: #FFF;
-  right: -${(props) => props.outsideChevron ? props.chevronWidth + 1 : 1}px;
   top: 0;
   display: flex;
   align-items: center;
   justify-content: center;
 `;
 
-const CarouselLeftChevron = styled(CarouselRightChevron)`
-  left: -${(props) => props.outsideChevron ? props.chevronWidth + 1 : 1}px;
-  right: 0px;
+const CarouselRightChevron = styled(CarouselChevron)`
+  right: -${(props) => props.outsideChevron ? props.chevronWidth : 0}px;
+`;
+
+const CarouselLeftChevron = styled(CarouselChevron)`
+  left: -${(props) => props.outsideChevron ? props.chevronWidth : 0}px;
 `;
 
 class ItemsCarousel extends React.Component {
@@ -116,14 +121,15 @@ class ItemsCarousel extends React.Component {
     } = this.state;
 
     return (
-      <Measure
-        whitelist={['width']}
-        onMeasure={({ width }) => {
-          this.setState({ containerWidth: width });
-        }}
+      <Wrapper
+        freeScrolling={freeScrolling}
       >
-        <Wrapper
-          freeScrolling={freeScrolling}
+        <Measure
+          includeMargin={false}
+          whitelist={['width', 'height']}
+          onMeasure={({ width, height }) => {
+            this.setState({ containerWidth: width, containerHeight: height });
+          }}
         >
           <SliderItemsWrapper
             translateX={translateX}
@@ -154,8 +160,8 @@ class ItemsCarousel extends React.Component {
               </SliderItem>
             ))}
           </SliderItemsWrapper>
-        </Wrapper>
-      </Measure>
+        </Measure>
+      </Wrapper>
     );
   }
 
@@ -175,10 +181,13 @@ class ItemsCarousel extends React.Component {
       chevronWidth,
       outsideChevron,
       requestToChangeActive,
+      slidesToScroll,
+      ...props,
     } = this.props;
 
     const {
       containerWidth,
+      containerHeight,
       isPlaceholderMode,
     } = this.state;
 
@@ -187,7 +196,15 @@ class ItemsCarousel extends React.Component {
     }
 
     if(freeScrolling) {
-      return this.renderList({ translateX: 0 });
+      return (
+        <CarouselWrapper
+          freeScrolling={freeScrolling}
+          height={containerHeight}
+          {...props}
+        >
+          {this.renderList({ translateX: 0, addHack: true })}
+        </CarouselWrapper>
+      )
     }
 
     const translateX = calculateTranslateX({
@@ -206,6 +223,7 @@ class ItemsCarousel extends React.Component {
       activePosition,
       numberOfChildren: children.length,
       numberOfCards,
+      slidesToScroll,
     });
 
     const _showLeftChevron = leftChevron && showLeftChevron({
@@ -213,10 +231,11 @@ class ItemsCarousel extends React.Component {
       activePosition,
       numberOfChildren: children.length,
       numberOfCards,
+      slidesToScroll,
     });
 
     return (
-      <CarouselWrapper>
+      <CarouselWrapper {...props}>
         <Motion
           defaultStyle={this.getInitialFrame({ translateX, springConfig })}
           style={this.calculateNextFrame({ translateX, springConfig })}
@@ -231,6 +250,7 @@ class ItemsCarousel extends React.Component {
               activePosition,
               activeItemIndex,
               numberOfCards,
+              slidesToScroll,
               numberOfChildren: children.length,
             }))}
           >
@@ -246,6 +266,7 @@ class ItemsCarousel extends React.Component {
               activePosition,
               activeItemIndex,
               numberOfCards,
+              slidesToScroll,
               numberOfChildren: children.length,
             }))}
           >
@@ -350,6 +371,21 @@ ItemsCarousel.propTypes = {
    * If true the chevron will be outside the carousel.
    */
   outsideChevron: PropTypes.bool,
+
+  /**
+   * Number of slides to scroll when clicked on right or left chevron.
+   */
+  slidesToScroll: PropTypes.number,
+
+  /**
+   * React motion configurations.
+   * [More about this here](https://github.com/chenglou/react-motion#--spring-val-number-config-springhelperconfig--opaqueconfig)
+   */
+  springConfig: PropTypes.shape({
+    stiffness: PropTypes.number,
+    damping: PropTypes.number,
+    precision: PropTypes.number,
+  }),
 };
 
 ItemsCarousel.defaultProps = {
@@ -361,6 +397,7 @@ ItemsCarousel.defaultProps = {
   enablePlaceholder: false,
   activeItemIndex: 0,
   activePosition: 'left',
+  slidesToScroll: 1,
 };
 
 export default ItemsCarousel;

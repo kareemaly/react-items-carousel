@@ -83,6 +83,7 @@ export class ItemsCarouselTest extends React.Component {
           showSlither={false}
           firstAndLastGutter={true}
           freeScrolling={false}
+          slidesToScroll={3}
 
           // Active item configurations
           requestToChangeActive={this.changeActiveItem}
@@ -92,7 +93,7 @@ export class ItemsCarouselTest extends React.Component {
           chevronWidth={24}
           rightChevron={'>'}
           leftChevron={'<'}
-          outsideChevron
+          outsideChevron={false}
 
           children={children}
         />

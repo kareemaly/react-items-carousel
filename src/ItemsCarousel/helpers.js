@@ -23,7 +23,7 @@ export const calculateItemWidth = ({
     allGutter += getFirstAndLastItemGutter({ gutter });
   }
 
-  return Math.floor((containerWidth - allGutter) / numberOfCards);
+  return (containerWidth - allGutter) / numberOfCards;
 }
 
 export const calculateItemLeftGutter = ({
@@ -156,12 +156,18 @@ export const showRightChevron = ({
   activePosition,
   numberOfCards,
   numberOfChildren,
+  slidesToScroll,
 }) => {
+  if(numberOfChildren <= numberOfCards) {
+    return false;
+  }
+
   return calculateNextIndex({
     activeItemIndex,
     activePosition,
     numberOfCards,
     numberOfChildren,
+    slidesToScroll,
   }) > activeItemIndex;
 }
 
@@ -170,12 +176,18 @@ export const showLeftChevron = ({
   activePosition,
   numberOfCards,
   numberOfChildren,
+  slidesToScroll,
 }) => {
+  if(numberOfChildren <= numberOfCards) {
+    return false;
+  }
+
   return calculatePreviousIndex({
     activeItemIndex,
     activePosition,
     numberOfCards,
     numberOfChildren,
+    slidesToScroll,
   }) < activeItemIndex;
 }
 
@@ -184,23 +196,24 @@ export const calculateNextIndex = ({
   activeItemIndex,
   numberOfChildren,
   numberOfCards,
+  slidesToScroll,
 }) => {
   switch(activePosition) {
     case'right':
       return max([
-        min([ activeItemIndex + 1, numberOfChildren - 1 ]),
+        min([ activeItemIndex + slidesToScroll, numberOfChildren - 1 ]),
         numberOfCards,
       ]);
 
     case'center':
       return max([
-        min([ activeItemIndex + 1, Math.floor(numberOfChildren - numberOfCards / 2)]),
+        min([ activeItemIndex + slidesToScroll, Math.floor(numberOfChildren - numberOfCards / 2)]),
         Math.floor(numberOfCards / 2) + 1,
       ]);
 
     case'left':
       return min([
-        activeItemIndex + 1,
+        activeItemIndex + slidesToScroll,
         numberOfChildren - numberOfCards,
       ]);
   }
@@ -211,23 +224,24 @@ export const calculatePreviousIndex = ({
   activeItemIndex,
   numberOfCards,
   numberOfChildren,
+  slidesToScroll,
 }) => {
   switch(activePosition) {
     case'right':
       return max([
-        min([ activeItemIndex - 1, numberOfChildren - 1 ]),
+        min([ activeItemIndex - slidesToScroll, numberOfChildren - 1 ]),
         numberOfCards - 1,
       ]);
 
     case'center':
       return max([
-        min([ activeItemIndex - 1, Math.floor(numberOfChildren - numberOfCards / 2) - 1]),
+        min([ activeItemIndex - slidesToScroll, Math.floor(numberOfChildren - numberOfCards / 2) - 1]),
         Math.floor(numberOfCards / 2),
       ]);
 
     case'left':
       return min([
-        max([ activeItemIndex - 1, 0 ]),
+        max([ activeItemIndex - slidesToScroll, 0 ]),
         numberOfChildren - numberOfCards - 1,
       ]);
   }
