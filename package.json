@@ -20,7 +20,6 @@
     "prebuild": "npm run doc",
     "build": "webpack --config webpack.prod.config --progress --colors -p",
     "start": "node server.js",
-    "preversion": "npm run build && git add --all && git commit -m 'Building package'",
     "lint": "eslint src"
   },
   "keywords": [
