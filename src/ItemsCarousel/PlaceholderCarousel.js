@@ -20,8 +20,8 @@ const SliderItemsWrapper = styled.div`
 const SliderItem = styled.div`
   width: ${(props) => props.width}px;
   flex-shrink: 0;
-  padding-right: ${(props) => props.rightGutter}px;
-  padding-left: ${(props) => props.leftGutter}px;
+  margin-right: ${(props) => props.rightGutter}px;
+  margin-left: ${(props) => props.leftGutter}px;
 `;
 
 export class PlaceholderCarousel extends React.Component {
@@ -47,6 +47,7 @@ export class PlaceholderCarousel extends React.Component {
 
     return (
       <Measure
+        includeMargin={false}
         whitelist={['width']}
         onMeasure={({ width }) => {
           this.setState({ containerWidth: width });
