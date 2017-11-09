@@ -11,6 +11,10 @@ const Wrapper = styled.div`
   background: #EEE;
 `;
 
+const CarouselWrapper = styled.div`
+  margin: 20px 0;
+`;
+
 const PlaceholderItem = styled.div`
   height: 200px;
   display: flex;
@@ -43,7 +47,7 @@ const ButtonsWrapper = styled.div`
   flex-wrap: wrap;
 `;
 
-const createChildren = n => _.range(n).map(i => <SlideItem key={i}>{i+1}</SlideItem>);
+const createChildren = n => _.range(n).map(i => <SlideItem key={i}>{i + 1}</SlideItem>);
 
 export class ItemsCarouselTest extends React.Component {
 
@@ -70,33 +74,64 @@ export class ItemsCarouselTest extends React.Component {
 
     return (
       <Wrapper>
-        <ItemsCarousel
-          // Placeholder configurations
-          placeholderItem={<PlaceholderItem />}
-          enablePlaceholder
-          numberOfPlaceholderItems={5}
-          minimumPlaceholderTime={1000}
+        <CarouselWrapper>
+          <ItemsCarousel
+            // Placeholder configurations
+            placeholderItem={<PlaceholderItem />}
+            enablePlaceholder
+            numberOfPlaceholderItems={5}
+            minimumPlaceholderTime={1000}
 
-          // Carousel configurations
-          numberOfCards={3}
-          gutter={12}
-          showSlither={false}
-          firstAndLastGutter={true}
-          freeScrolling={false}
-          slidesToScroll={3}
+            // Carousel configurations
+            numberOfCards={3}
+            gutter={12}
+            showSlither={false}
+            firstAndLastGutter={true}
+            freeScrolling={false}
+            slidesToScroll={3}
 
-          // Active item configurations
-          requestToChangeActive={this.changeActiveItem}
-          activeItemIndex={activeItemIndex}
-          activePosition={'right'}
+            // Active item configurations
+            requestToChangeActive={this.changeActiveItem}
+            activeItemIndex={activeItemIndex}
+            activePosition={'right'}
 
-          chevronWidth={24}
-          rightChevron={'>'}
-          leftChevron={'<'}
-          outsideChevron={false}
+            chevronWidth={24}
+            rightChevron={'>'}
+            leftChevron={'<'}
+            outsideChevron={false}
 
-          children={children}
-        />
+            children={children}
+          />
+        </CarouselWrapper>
+        <CarouselWrapper>
+          <ItemsCarousel
+            // Placeholder configurations
+            placeholderItem={<PlaceholderItem />}
+            enablePlaceholder
+            numberOfPlaceholderItems={5}
+            minimumPlaceholderTime={1000}
+
+            // Carousel configurations
+            numberOfCards={1}
+            gutter={12}
+            showSlither={true}
+            firstAndLastGutter={true}
+            freeScrolling={false}
+            slidesToScroll={3}
+
+            // Active item configurations
+            requestToChangeActive={this.changeActiveItem}
+            activeItemIndex={activeItemIndex}
+            activePosition={'center'}
+
+            chevronWidth={24}
+            rightChevron={'>'}
+            leftChevron={'<'}
+            outsideChevron={false}
+
+            children={children}
+          />
+        </CarouselWrapper>
         <ButtonsWrapper>
           {children.map((item, index) => (
             <ItemButton isActive={index === activeItemIndex} onClick={() => this.changeActiveItem(index)} key={index}>
