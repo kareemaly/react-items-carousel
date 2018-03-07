@@ -237,7 +237,7 @@ class ItemsCarousel extends React.Component {
     });
 
     return (
-      <CarouselWrapper {...props} innerRef={ref=>this.ref = ref}>
+      <CarouselWrapper {...props}>
         <Motion
           defaultStyle={this.getInitialFrame({ translateX, springConfig })}
           style={this.calculateNextFrame({ translateX, springConfig })}
