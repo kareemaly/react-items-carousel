@@ -27,7 +27,7 @@ const SliderItem = styled.div`
 export class PlaceholderCarousel extends React.Component {
   componentWillMount() {
     this.setState({
-      containerWidth: 0
+      containerWidth: this.props.containerWidth || 0,
     });
   }
 
@@ -39,11 +39,20 @@ export class PlaceholderCarousel extends React.Component {
       numberOfCards,
       firstAndLastGutter,
       showSlither,
+      renderPlaceholderItem,
     } = this.props;
 
     const {
       containerWidth,
     } = this.state;
+
+    const width = calculateItemWidth({
+      firstAndLastGutter,
+      containerWidth,
+      gutter,
+      numberOfCards,
+      showSlither,
+    });
 
     return (
       <Measure
@@ -57,13 +66,6 @@ export class PlaceholderCarousel extends React.Component {
           {range(numberOfPlaceholderItems).map((index) => (
             <SliderItem
               key={index}
-              width={calculateItemWidth({
-                firstAndLastGutter,
-                containerWidth,
-                gutter,
-                numberOfCards,
-                showSlither,
-              })}
               leftGutter={calculateItemLeftGutter({
                 index,
                 firstAndLastGutter,
@@ -76,7 +78,7 @@ export class PlaceholderCarousel extends React.Component {
                 numberOfChildren: numberOfPlaceholderItems,
               })}
             >
-              {placeholderItem}
+              { React.cloneElement(placeholderItem, { width }) }
             </SliderItem>
           ))}
         </SliderItemsWrapper>
@@ -92,6 +94,7 @@ PlaceholderCarousel.propTypes = {
   placeholderItem: PropTypes.element,
   numberOfCards: PropTypes.number,
   numberOfPlaceholderItems: PropTypes.number,
+  containerWidth: PropTypes.number,
 };
 
 export default PlaceholderCarousel;
