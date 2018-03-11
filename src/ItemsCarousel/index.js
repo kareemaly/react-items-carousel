@@ -65,7 +65,7 @@ const CarouselLeftChevron = styled(CarouselChevron)`
 class ItemsCarousel extends React.Component {
   componentWillMount() {
     this.setState({
-      containerWidth: 0,
+      containerWidth: this.props.containerWidth || 0,
       isPlaceholderMode: this.props.enablePlaceholder && this.props.children.length === 0,
     });
 
@@ -77,6 +77,7 @@ class ItemsCarousel extends React.Component {
       clearTimeout(this.placeholderTimer);
     }
   }
+
 
   componentWillReceiveProps(nextProps) {
     // Data loaded and no timer to deactivate placeholder mode
@@ -119,6 +120,13 @@ class ItemsCarousel extends React.Component {
     const {
       containerWidth,
     } = this.state;
+    const width = calculateItemWidth({
+      firstAndLastGutter,
+      containerWidth,
+      gutter,
+      numberOfCards,
+      showSlither,
+    });
 
     return (
       <Wrapper
@@ -137,13 +145,7 @@ class ItemsCarousel extends React.Component {
             {children.map((child, index) => (
               <SliderItem
                 key={index}
-                width={calculateItemWidth({
-                  firstAndLastGutter,
-                  containerWidth,
-                  gutter,
-                  numberOfCards,
-                  showSlither,
-                })}
+                width={width}
                 leftGutter={calculateItemLeftGutter({
                   index,
                   firstAndLastGutter,
@@ -156,7 +158,7 @@ class ItemsCarousel extends React.Component {
                   numberOfChildren: children.length,
                 })}
               >
-                {child}
+                { React.cloneElement(child, { width })}
               </SliderItem>
             ))}
           </SliderItemsWrapper>
@@ -279,6 +281,7 @@ class ItemsCarousel extends React.Component {
 }
 
 ItemsCarousel.propTypes = {
+  containerWidth: PropTypes.number,
   /**
    * Carousel react items.
    */
