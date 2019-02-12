@@ -47,39 +47,42 @@ export class PlaceholderCarousel extends React.Component {
 
     return (
       <Measure
-        includeMargin={false}
-        whitelist={['width']}
-        onMeasure={({ width }) => {
-          this.setState({ containerWidth: width });
+        bounds
+        margin={false}
+        onResize={({ bounds }) => {
+          this.setState({ containerWidth: bounds.width });
         }}
       >
-        <SliderItemsWrapper>
-          {range(numberOfPlaceholderItems).map((index) => (
-            <SliderItem
-              key={index}
-              width={calculateItemWidth({
-                firstAndLastGutter,
-                containerWidth,
-                gutter,
-                numberOfCards,
-                showSlither,
-              })}
-              leftGutter={calculateItemLeftGutter({
-                index,
-                firstAndLastGutter,
-                gutter,
-              })}
-              rightGutter={calculateItemRightGutter({
-                index,
-                firstAndLastGutter,
-                gutter,
-                numberOfChildren: numberOfPlaceholderItems,
-              })}
-            >
-              {placeholderItem}
-            </SliderItem>
-          ))}
-        </SliderItemsWrapper>
+        {({ measureRef }) => (
+          <SliderItemsWrapper
+            innerRef={measureRef}>
+            {range(numberOfPlaceholderItems).map((index) => (
+              <SliderItem
+                key={index}
+                width={calculateItemWidth({
+                  firstAndLastGutter,
+                  containerWidth,
+                  gutter,
+                  numberOfCards,
+                  showSlither,
+                })}
+                leftGutter={calculateItemLeftGutter({
+                  index,
+                  firstAndLastGutter,
+                  gutter,
+                })}
+                rightGutter={calculateItemRightGutter({
+                  index,
+                  firstAndLastGutter,
+                  gutter,
+                  numberOfChildren: numberOfPlaceholderItems,
+                })}
+              >
+                {placeholderItem}
+              </SliderItem>
+            ))}
+          </SliderItemsWrapper>
+        )}
       </Measure>
     );
   }
