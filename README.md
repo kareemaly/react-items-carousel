@@ -103,9 +103,9 @@ Contributing
 To contribute, follow these steps:
 - Fork this repo.
 - Clone your fork.
-- Run `npm install`
-- Run `npm start`
-- Goto `localhost:3000`
+- Run `yarn`
+- Run `yarn start`
+- Goto `localhost:9000`
 - Add your patch then push to your fork and submit a pull request
 
 License
