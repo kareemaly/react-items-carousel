@@ -4,6 +4,7 @@
   "description": "React Items Carousel",
   "homepage": "https://github.com/bitriddler/react-items-carousel",
   "main": "index.js",
+  "main": "dist/react-items-carousel.js",
   "license": "MIT",
   "files": [
     "src/",

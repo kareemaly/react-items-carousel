@@ -6,8 +6,8 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'react-items-carousel.js',
-    library: '',
-    libraryTarget: 'commonjs'
+    library: 'ReactItemsCarousel',
+    libraryTarget: 'umd'
   },
   externals: [nodeExternals()],
   module: {
