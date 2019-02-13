@@ -88,28 +88,24 @@ export default class Test extends React.Component {
 | enablePlaceholder | bool | false | Enable placeholder items while data loads |
 | placeholderItem | element |  | Placeholder item. Ignored if enablePlaceholder is false. |
 | numberOfPlaceholderItems | number |  | Number of placeholder items. Ignored if enablePlaceholder is false. |
-| requestToChangeActive | func |  | This is called when we want to change the active item.
-<br />Right now we will never call this unless a left or right chevrons are clicked. |
-| activeItemIndex | number | 0 | This gives you the control to change the current active item.
-<br />This is ignored if freeScrolling is true. |
-| activePosition | enum ('left', 'center', 'right') | 'left' | The active item position.
-<br />This is ignored if freeScrolling is true. |
+| requestToChangeActive | func |  | This is called when we want to change the active item.<br />Right now we will never call this unless a left or right chevrons are clicked. |
+| activeItemIndex | number | 0 | This gives you the control to change the current active item.<br />This is ignored if freeScrolling is true. |
+| activePosition | enum ('left', 'center', 'right') | 'left' | The active item position.<br />This is ignored if freeScrolling is true. |
 | rightChevron | union (<br />element,<br />string<br />) |  | Right chevron element. If passed `requestToChangeActive` must be set. |
 | leftChevron | union (<br />element,<br />string<br />) |  | Left chevron element. If passed `requestToChangeActive` must be set. |
 | chevronWidth | number |  | Chevron width. |
 | outsideChevron | bool |  | If true the chevron will be outside the carousel. |
 | slidesToScroll | number | 1 | Number of slides to scroll when clicked on right or left chevron. |
-| springConfig | shape {<br />`stiffness: number`<br />`damping: number`<br />`precision: number`<br />} |  | React motion configurations.
-<br />[More about this here](https://github.com/chenglou/react-motion#--spring-val-number-config-springhelperconfig--opaqueconfig) |
+| springConfig | shape {<br />`stiffness: number`<br />`damping: number`<br />`precision: number`<br />} |  | React motion configurations.<br />[More about this here](https://github.com/chenglou/react-motion#--spring-val-number-config-springhelperconfig--opaqueconfig) |
 
 Contributing
 --------------
 To contribute, follow these steps:
 - Fork this repo.
 - Clone your fork.
-- Run `npm install`
-- Run `npm start`
-- Goto `localhost:3000`
+- Run `yarn`
+- Run `yarn start`
+- Goto `localhost:9000`
 - Add your patch then push to your fork and submit a pull request
 
 License

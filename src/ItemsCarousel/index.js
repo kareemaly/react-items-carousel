@@ -33,7 +33,6 @@ const SliderItemsWrapper = styled.div`
   width: 100%;
   display: flex;
   flex-wrap: nowrap;
-  transform: translateX(-${(props) => props.translateX}px);
 `;
 
 const SliderItem = styled.div`
@@ -125,41 +124,47 @@ class ItemsCarousel extends React.Component {
         freeScrolling={freeScrolling}
       >
         <Measure
-          includeMargin={false}
+          bounds
+          margin={false}
           whitelist={['width', 'height']}
-          onMeasure={({ width, height }) => {
-            this.setState({ containerWidth: width, containerHeight: height });
+          onResize={({ bounds }) => {
+            this.setState({ containerWidth: bounds.width, containerHeight: bounds.height });
           }}
         >
-          <SliderItemsWrapper
-            translateX={translateX}
-          >
-            {children.map((child, index) => (
-              <SliderItem
-                key={index}
-                width={calculateItemWidth({
-                  firstAndLastGutter,
-                  containerWidth,
-                  gutter,
-                  numberOfCards,
-                  showSlither,
-                })}
-                leftGutter={calculateItemLeftGutter({
-                  index,
-                  firstAndLastGutter,
-                  gutter,
-                })}
-                rightGutter={calculateItemRightGutter({
-                  index,
-                  firstAndLastGutter,
-                  gutter,
-                  numberOfChildren: children.length,
-                })}
-              >
-                {child}
-              </SliderItem>
-            ))}
-          </SliderItemsWrapper>
+          {({ measureRef }) => (
+            <SliderItemsWrapper
+              ref={measureRef}
+              style={{
+                transform: `translateX(-${translateX}px)`,
+              }}
+            >
+              {children.map((child, index) => (
+                <SliderItem
+                  key={index}
+                  width={calculateItemWidth({
+                    firstAndLastGutter,
+                    containerWidth,
+                    gutter,
+                    numberOfCards,
+                    showSlither,
+                  })}
+                  leftGutter={calculateItemLeftGutter({
+                    index,
+                    firstAndLastGutter,
+                    gutter,
+                  })}
+                  rightGutter={calculateItemRightGutter({
+                    index,
+                    firstAndLastGutter,
+                    gutter,
+                    numberOfChildren: children.length,
+                  })}
+                >
+                  {child}
+                </SliderItem>
+              ))}
+            </SliderItemsWrapper>
+          )}
         </Measure>
       </Wrapper>
     );
@@ -182,7 +187,7 @@ class ItemsCarousel extends React.Component {
       outsideChevron,
       requestToChangeActive,
       slidesToScroll,
-      ...props,
+      ...props
     } = this.props;
 
     const {

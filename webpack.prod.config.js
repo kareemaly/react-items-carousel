@@ -1,40 +1,29 @@
-var path = require('path');
-var webpack = require('webpack');
-var webpackUMDExternal = require('webpack-umd-external');
+const path = require('path');
+const nodeExternals = require('webpack-node-externals');
 
 module.exports = {
-  devtool: 'sourcemap',
-  entry: {
-    index: './src/ItemsCarousel/index.js'
-  },
+  entry: path.resolve(__dirname, './src/ItemsCarousel/index'),
   output: {
-    path: path.join(__dirname, 'dist'),
-    publicPath: 'dist/',
+    path: path.resolve(__dirname, 'dist'),
     filename: 'react-items-carousel.js',
-    sourceMapFilename: 'react-items-carousel.map',
     library: 'ReactItemsCarousel',
     libraryTarget: 'umd'
   },
-  plugins: [
-    new webpack.optimize.UglifyJsPlugin({
-      compress: { warnings: false },
-      output: { comments: false }
-    })
-  ],
+  externals: [nodeExternals()],
   module: {
-    loaders: [{
-      test: /\.js$/,
-      exclude: /node_modules/,
-      loader: 'babel'
-    }]
+    rules: [
+      {
+        test: /\.m?js$/,
+        exclude: /node_modules/,
+        use: {
+          loader: 'babel-loader',
+          options: {
+            plugins: ['@babel/plugin-proposal-class-properties'],
+            presets: ['@babel/preset-env', '@babel/preset-react']
+          }
+        }
+      }
+    ]
   },
-  resolve: {
-    extensions: ['', '.js', '.jsx']
-  },
-  externals: webpackUMDExternal({
-    'react': 'React',
-    'react-motion': 'ReactMotion',
-    'react-measure': 'ReactMeasure',
-    'styled-components': 'ReactStyled',
-  }),
+  mode: 'production',
 };
