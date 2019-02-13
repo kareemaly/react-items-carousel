@@ -125,41 +125,45 @@ class ItemsCarousel extends React.Component {
         freeScrolling={freeScrolling}
       >
         <Measure
-          includeMargin={false}
+          bounds
+          margin={false}
           whitelist={['width', 'height']}
-          onMeasure={({ width, height }) => {
-            this.setState({ containerWidth: width, containerHeight: height });
+          onResize={({ bounds }) => {
+            this.setState({ containerWidth: bounds.width, containerHeight: bounds.height });
           }}
         >
-          <SliderItemsWrapper
-            translateX={translateX}
-          >
-            {children.map((child, index) => (
-              <SliderItem
-                key={index}
-                width={calculateItemWidth({
-                  firstAndLastGutter,
-                  containerWidth,
-                  gutter,
-                  numberOfCards,
-                  showSlither,
-                })}
-                leftGutter={calculateItemLeftGutter({
-                  index,
-                  firstAndLastGutter,
-                  gutter,
-                })}
-                rightGutter={calculateItemRightGutter({
-                  index,
-                  firstAndLastGutter,
-                  gutter,
-                  numberOfChildren: children.length,
-                })}
-              >
-                {child}
-              </SliderItem>
-            ))}
-          </SliderItemsWrapper>
+          {({ measureRef }) => (
+            <SliderItemsWrapper
+              innerRef={measureRef}
+              translateX={translateX}
+            >
+              {children.map((child, index) => (
+                <SliderItem
+                  key={index}
+                  width={calculateItemWidth({
+                    firstAndLastGutter,
+                    containerWidth,
+                    gutter,
+                    numberOfCards,
+                    showSlither,
+                  })}
+                  leftGutter={calculateItemLeftGutter({
+                    index,
+                    firstAndLastGutter,
+                    gutter,
+                  })}
+                  rightGutter={calculateItemRightGutter({
+                    index,
+                    firstAndLastGutter,
+                    gutter,
+                    numberOfChildren: children.length,
+                  })}
+                >
+                  {child}
+                </SliderItem>
+              ))}
+            </SliderItemsWrapper>
+          )}
         </Measure>
       </Wrapper>
     );
