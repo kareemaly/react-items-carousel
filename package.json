@@ -18,8 +18,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "doc": "node ./bin/doc.js",
     "prebuild": "npm run doc",
-    "build": "NODE_ENV=production webpack",
-    "start": "NODE_ENV=development webpack-dev-server",
+    "build": "webpack --config webpack.prod.config.js",
+    "start": "webpack-dev-server",
     "lint": "eslint src"
   },
   "keywords": [

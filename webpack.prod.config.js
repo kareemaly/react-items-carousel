@@ -1,7 +1,15 @@
 const path = require('path');
+const nodeExternals = require('webpack-node-externals');
 
 module.exports = {
-  entry: path.resolve(__dirname, './src/index'),
+  entry: path.resolve(__dirname, './src/ItemsCarousel/index'),
+  output: {
+    path: path.resolve(__dirname, 'dist'),
+    filename: 'react-items-carousel.js',
+    library: 'ReactItemsCarousel',
+    libraryTarget: 'umd'
+  },
+  externals: [nodeExternals()],
   module: {
     rules: [
       {
@@ -17,9 +25,5 @@ module.exports = {
       }
     ]
   },
-  mode: 'development',
-  devServer: {
-    index: path.resolve(__dirname, 'index.html'),
-    port: 9000
-  }
-}
+  mode: 'production',
+};
