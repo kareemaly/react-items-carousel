@@ -55,7 +55,7 @@ export class PlaceholderCarousel extends React.Component {
       >
         {({ measureRef }) => (
           <SliderItemsWrapper
-            innerRef={measureRef}>
+            ref={measureRef}>
             {range(numberOfPlaceholderItems).map((index) => (
               <SliderItem
                 key={index}

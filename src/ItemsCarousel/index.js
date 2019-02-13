@@ -33,7 +33,6 @@ const SliderItemsWrapper = styled.div`
   width: 100%;
   display: flex;
   flex-wrap: nowrap;
-  transform: translateX(-${(props) => props.translateX}px);
 `;
 
 const SliderItem = styled.div`
@@ -134,8 +133,10 @@ class ItemsCarousel extends React.Component {
         >
           {({ measureRef }) => (
             <SliderItemsWrapper
-              innerRef={measureRef}
-              translateX={translateX}
+              ref={measureRef}
+              style={{
+                transform: `translateX(-${translateX}px)`,
+              }}
             >
               {children.map((child, index) => (
                 <SliderItem
@@ -186,7 +187,7 @@ class ItemsCarousel extends React.Component {
       outsideChevron,
       requestToChangeActive,
       slidesToScroll,
-      ...props,
+      ...props
     } = this.props;
 
     const {
