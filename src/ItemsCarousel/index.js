@@ -119,6 +119,7 @@ class ItemsCarousel extends React.Component {
       containerWidth,
     } = this.state;
 
+    let self = this;
     return (
       <Wrapper
         freeScrolling={freeScrolling}
@@ -128,7 +129,9 @@ class ItemsCarousel extends React.Component {
           margin={false}
           whitelist={['width', 'height']}
           onResize={({ bounds }) => {
-            this.setState({ containerWidth: bounds.width, containerHeight: bounds.height });
+            requestAnimationFrame(function () {
+              self.setState({ containerWidth: bounds.width, containerHeight: bounds.height });
+            });
           }}
         >
           {({ measureRef }) => (
