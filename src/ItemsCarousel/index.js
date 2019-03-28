@@ -128,7 +128,7 @@ class ItemsCarousel extends React.Component {
           margin={false}
           whitelist={['width', 'height']}
           onResize={({ bounds }) => {
-            this.setState({ containerWidth: bounds.width, containerHeight: bounds.height });
+            requestAnimationFrame(() => this.setState({ containerWidth: bounds.width, containerHeight: bounds.height }));
           }}
         >
           {({ measureRef }) => (
