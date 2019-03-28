@@ -7,7 +7,8 @@ module.exports = {
     path: path.resolve(__dirname, 'dist'),
     filename: 'react-items-carousel.js',
     library: 'ReactItemsCarousel',
-    libraryTarget: 'umd'
+    libraryTarget: 'umd',
+    globalObject: "typeof self !== 'undefined' ? self : this"
   },
   externals: [nodeExternals()],
   module: {
