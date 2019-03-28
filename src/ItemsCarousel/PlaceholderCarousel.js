@@ -44,13 +44,12 @@ export class PlaceholderCarousel extends React.Component {
     const {
       containerWidth,
     } = this.state;
-
     return (
       <Measure
         bounds
         margin={false}
         onResize={({ bounds }) => {
-          this.setState({ containerWidth: bounds.width });
+          requestAnimationFrame(() => this.setState({ containerWidth: bounds.width }));
         }}
       >
         {({ measureRef }) => (
