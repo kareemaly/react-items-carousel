@@ -18,7 +18,7 @@ import {
 const CarouselWrapper = styled.div`
   position: relative;
   /* This is necessary to hide scrollbars in free scrolling mode */
-  ${(props) => props.freeScrolling && `overflow: hidden;`}
+  ${(props) => props.freeScrolling && 'overflow: hidden;'}
   ${(props) => props.height && `height: ${props.height}px;`}
 `;
 

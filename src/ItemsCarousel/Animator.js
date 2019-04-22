@@ -130,10 +130,10 @@ export default class Animator {
   }
 
   check() {
-    if(this.safeMargin === undefined) throw new Error(`You have to set safeMargin for the animator`);
-    if(this.initialTranslation === undefined) throw new Error(`You have to set initialTranslation for the animator`);
-    if(this.resistanceCoeffiecent === undefined) throw new Error(`You have to set resistanceCoeffiecent for the animator`);
-    if(this.currentTranslateX === undefined) throw new Error(`You have to set currentTranslateX for the animator`);
+    if(this.safeMargin === undefined) throw new Error('You have to set safeMargin for the animator');
+    if(this.initialTranslation === undefined) throw new Error('You have to set initialTranslation for the animator');
+    if(this.resistanceCoeffiecent === undefined) throw new Error('You have to set resistanceCoeffiecent for the animator');
+    if(this.currentTranslateX === undefined) throw new Error('You have to set currentTranslateX for the animator');
   }
 
   setNumberOfChildren(noOfChildren) {
@@ -248,7 +248,7 @@ export default class Animator {
       }
     }
 
-    throw new Error("Cant getCenterItemIndex");
+    throw new Error('Cant getCenterItemIndex');
   }
 
   getSwipeReleaseCenterItemIndex(deltaX) {
