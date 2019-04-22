@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { Motion, spring, presets } from 'react-motion';
 import Measure from 'react-measure';
 import styled from 'styled-components';
-import range from 'lodash/range';
 import PlaceholderCarousel from './PlaceholderCarousel';
 import {
   calculateItemWidth,
@@ -53,11 +52,11 @@ const CarouselChevron = styled.div`
   justify-content: center;
 `;
 
-const CarouselRightChevron = styled(CarouselChevron)`
+const CarouselRightChevron = styled(props => <CarouselChevron {...props} />)`
   right: -${(props) => props.outsideChevron ? props.chevronWidth : 0}px;
 `;
 
-const CarouselLeftChevron = styled(CarouselChevron)`
+const CarouselLeftChevron = styled(props => <CarouselChevron {...props} />)`
   left: -${(props) => props.outsideChevron ? props.chevronWidth : 0}px;
 `;
 
