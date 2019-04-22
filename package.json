@@ -15,13 +15,16 @@
     "url": "git://github.com/bitriddler/react-items-carousel.git"
   },
   "scripts": {
+    "prepublish": "yarn build",
     "test": "echo \"Error: no test specified\" && exit 1",
     "doc": "node ./bin/doc.js",
-    "prebuild": "npm run doc",
     "build": "webpack --config webpack.prod.config.js",
     "start": "webpack-dev-server",
     "lint": "eslint src"
   },
+  "pre-commit": [
+    "doc"
+  ],
   "keywords": [
     "react-items-carousel",
     "react-component",
@@ -40,6 +43,7 @@
     "express": "^4.13.4",
     "glob": "^7.1.1",
     "material-ui": "^0.20.2",
+    "pre-commit": "^1.2.2",
     "react-docgen": "^3.0.0",
     "react-dom": "16.8.1",
     "react-hot-loader": "^4.6.5",
