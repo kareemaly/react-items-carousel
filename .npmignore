@@ -3,3 +3,5 @@ npm-debug.log
 .DS_Store
 .idea
 *.iml
+gh
+gh-build

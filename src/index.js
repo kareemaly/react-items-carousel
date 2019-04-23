@@ -1,5 +1,3 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import ItemsCarousel from './ItemsCarousel/test';
+import ItemsCarousel from './ItemsCarousel';
 
-ReactDOM.render(<ItemsCarousel />, document.getElementById('root'));
+export default ItemsCarousel;
