@@ -104,7 +104,7 @@ To contribute, follow these steps:
 - Fork this repo.
 - Clone your fork.
 - Run `yarn`
-- Run `yarn start`
+- Run `yarn start:gh`
 - Goto `localhost:9000`
 - Add your patch then push to your fork and submit a pull request
 
