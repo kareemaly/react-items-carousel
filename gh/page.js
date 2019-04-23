@@ -13,10 +13,9 @@ const Page = () => (
       <Menu
         theme="dark"
         mode="horizontal"
-        defaultSelectedKeys={['2']}
         style={{ lineHeight: '64px' }}
       >
-        <Menu.Item key="1">Github</Menu.Item>
+        <Menu.Item key="1"><a href="https://github.com/bitriddler/react-items-carousel">Github</a></Menu.Item>
       </Menu>
     </Header>
     <Content style={{ overflowX: 'hidden', background: '#FFF' }}>
