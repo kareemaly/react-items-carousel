@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Motion, spring, presets } from 'react-motion';
 import Measure from 'react-measure';
 import styled from 'styled-components';
-import PlaceholderCarousel from './PlaceholderCarousel';
+import range from 'lodash/range';
 import {
   calculateItemWidth,
   calculateItemLeftGutter,
@@ -61,12 +61,14 @@ const CarouselLeftChevron = styled(props => <CarouselChevron {...props} />)`
 `;
 
 class ItemsCarousel extends React.Component {
-  componentWillMount() {
-    this.setState({
-      containerWidth: 0,
+  constructor(props) {
+    super(props);
+    this.state = {
       isPlaceholderMode: this.props.enablePlaceholder && this.props.children.length === 0,
-    });
+    };
+  }
 
+  componentDidMount() {
     this.startPlaceholderMinimumTimer();
   }
 
@@ -94,7 +96,7 @@ class ItemsCarousel extends React.Component {
         this.setState({ isPlaceholderMode: false });
       }
     }, this.props.minimumPlaceholderTime);
-  }
+  };
 
   getInitialFrame = ({ translateX }) => ({
     translateX,
@@ -104,78 +106,78 @@ class ItemsCarousel extends React.Component {
     translateX: spring(translateX, springConfig),
   });
 
-  renderList({ translateX }) {
+  getItems = () => {
+    const {
+      placeholderItem,
+      numberOfPlaceholderItems,
+    } = this.props;
+
+    const {
+      isPlaceholderMode,
+    } = this.state;
+
+    if (isPlaceholderMode) {
+      return range(numberOfPlaceholderItems).map(index => placeholderItem);
+    }
+
+    return this.props.children;
+  };
+
+  renderList({ items, translateX, containerWidth, measureRef }) {
     const {
       gutter,
       freeScrolling,
       numberOfCards,
       firstAndLastGutter,
-      children,
       showSlither,
     } = this.props;
-
-    const {
-      containerWidth,
-    } = this.state;
 
     return (
       <Wrapper
         freeScrolling={freeScrolling}
       >
-        <Measure
-          bounds
-          margin={false}
-          whitelist={['width', 'height']}
-          onResize={({ bounds }) => {
-            requestAnimationFrame(() => this.setState({ containerWidth: bounds.width, containerHeight: bounds.height }));
+        <SliderItemsWrapper
+          ref={measureRef}
+          style={{
+            transform: `translateX(-${translateX}px)`,
           }}
         >
-          {({ measureRef }) => (
-            <SliderItemsWrapper
-              ref={measureRef}
-              style={{
-                transform: `translateX(-${translateX}px)`,
-              }}
+          {items.map((child, index) => (
+            <SliderItem
+              key={index}
+              width={calculateItemWidth({
+                firstAndLastGutter,
+                containerWidth,
+                gutter,
+                numberOfCards,
+                showSlither,
+              })}
+              leftGutter={calculateItemLeftGutter({
+                index,
+                firstAndLastGutter,
+                gutter,
+              })}
+              rightGutter={calculateItemRightGutter({
+                index,
+                firstAndLastGutter,
+                gutter,
+                numberOfChildren: items.length,
+              })}
             >
-              {children.map((child, index) => (
-                <SliderItem
-                  key={index}
-                  width={calculateItemWidth({
-                    firstAndLastGutter,
-                    containerWidth,
-                    gutter,
-                    numberOfCards,
-                    showSlither,
-                  })}
-                  leftGutter={calculateItemLeftGutter({
-                    index,
-                    firstAndLastGutter,
-                    gutter,
-                  })}
-                  rightGutter={calculateItemRightGutter({
-                    index,
-                    firstAndLastGutter,
-                    gutter,
-                    numberOfChildren: children.length,
-                  })}
-                >
-                  {child}
-                </SliderItem>
-              ))}
-            </SliderItemsWrapper>
-          )}
-        </Measure>
+              {child}
+            </SliderItem>
+          ))}
+        </SliderItemsWrapper>
       </Wrapper>
     );
   }
 
-  render() {
-    const {
+  renderContent({ measureRef, containerWidth, containerHeight }) {
+    let {
       gutter,
       freeScrolling,
       numberOfCards,
       firstAndLastGutter,
-      children,
       activeItemIndex,
       activePosition,
       springConfig,
@@ -189,15 +191,7 @@ class ItemsCarousel extends React.Component {
       ...props
     } = this.props;
 
-    const {
-      containerWidth,
-      containerHeight,
-      isPlaceholderMode,
-    } = this.state;
-
-    if(isPlaceholderMode) {
-      return <PlaceholderCarousel {...this.props} />
-    }
+    const items = this.getItems();
 
     if(freeScrolling) {
       return (
@@ -206,7 +200,7 @@ class ItemsCarousel extends React.Component {
           height={containerHeight}
           {...props}
         >
-          {this.renderList({ translateX: 0, addHack: true })}
+          {this.renderList({ items, measureRef, containerWidth, translateX: 0, addHack: true })}
         </CarouselWrapper>
       )
     }
@@ -215,7 +209,7 @@ class ItemsCarousel extends React.Component {
       activeItemIndex,
       activePosition,
       containerWidth,
-      numberOfChildren: children.length,
+      numberOfChildren: items.length,
       numberOfCards,
       gutter,
       firstAndLastGutter,
@@ -225,7 +219,7 @@ class ItemsCarousel extends React.Component {
     const _showRightChevron = rightChevron && showRightChevron({
       activeItemIndex,
       activePosition,
-      numberOfChildren: children.length,
+      numberOfChildren: items.length,
       numberOfCards,
       slidesToScroll,
     });
@@ -233,7 +227,7 @@ class ItemsCarousel extends React.Component {
     const _showLeftChevron = leftChevron && showLeftChevron({
       activeItemIndex,
       activePosition,
-      numberOfChildren: children.length,
+      numberOfChildren: items.length,
       numberOfCards,
       slidesToScroll,
     });
@@ -243,7 +237,7 @@ class ItemsCarousel extends React.Component {
         <Motion
           defaultStyle={this.getInitialFrame({ translateX, springConfig })}
           style={this.calculateNextFrame({ translateX, springConfig })}
-          children={({ translateX }) => this.renderList({ translateX })}
+          children={({ translateX }) => this.renderList({ items, measureRef, containerWidth, translateX })}
         />
         {
           _showRightChevron && 
@@ -255,7 +249,7 @@ class ItemsCarousel extends React.Component {
               activeItemIndex,
               numberOfCards,
               slidesToScroll,
-              numberOfChildren: children.length,
+              numberOfChildren: items.length,
             }))}
           >
             {rightChevron}
@@ -271,7 +265,7 @@ class ItemsCarousel extends React.Component {
               activeItemIndex,
               numberOfCards,
               slidesToScroll,
-              numberOfChildren: children.length,
+              numberOfChildren: items.length,
             }))}
           >
             {leftChevron}
@@ -279,6 +273,24 @@ class ItemsCarousel extends React.Component {
         }
       </CarouselWrapper>
     );
+  }
+
+  render() {
+    return (
+      <Measure
+        bounds
+        margin={false}
+        whitelist={['width', 'height']}
+      >
+        {({ measureRef, contentRect }) => {
+          return this.renderContent({
+            containerWidth: contentRect.bounds.width,
+            containerHeight: contentRect.bounds.height,
+            measureRef,
+          });
+        }}
+      </Measure>
+    )
   }
 }
 
