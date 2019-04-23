@@ -200,7 +200,7 @@ class ItemsCarousel extends React.Component {
           height={containerHeight}
           {...props}
         >
-          {this.renderList({ items, measureRef, containerWidth, translateX: 0, addHack: true })}
+          {this.renderList({ items, measureRef, containerWidth, translateX: 0 })}
         </CarouselWrapper>
       )
     }
