@@ -5,3 +5,4 @@ npm-debug.log
 *.iml
 dist
 gh-build
+yarn-error.log
