@@ -5,7 +5,7 @@ const mainState = {
   wrapperStyle: { padding: "0 60px", maxWidth: 800, margin: '0 auto' },
   componentProps: {
     gutter: 12,
-    freeScrolling: false,
+    // freeScrolling: false,
     activePosition: 'center',
     chevronWidth: 60,
   },
@@ -21,6 +21,8 @@ export default [
         numberOfCards: 2,
         slidesToScroll: 2,
         outsideChevron: true,
+        showSlither: false,
+        firstAndLastGutter: false,
       },
     }),
   },
@@ -43,6 +45,9 @@ export default [
       componentProps: {
         numberOfCards: 3,
         slidesToScroll: 3,
+        outsideChevron: false,
+        showSlither: false,
+        firstAndLastGutter: false,
       },
     }),
   },
@@ -53,6 +58,8 @@ export default [
       componentProps: {
         numberOfCards: 3,
         slidesToScroll: 3,
+        outsideChevron: false,
+        showSlither: false,
         firstAndLastGutter: true,
       },
     }),
@@ -63,6 +70,7 @@ export default [
       componentProps: {
         numberOfCards: 1,
         slidesToScroll: 1,
+        outsideChevron: false,
         showSlither: true,
         firstAndLastGutter: true,
       },
