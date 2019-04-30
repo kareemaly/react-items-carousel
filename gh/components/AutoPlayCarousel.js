@@ -24,6 +24,12 @@ const SlideItem = styled.div`
   font-weight: bold;
 `;
 
+const carouselItems = range(noOfItems).map(index => (
+  <SlideItem key={index}>
+    {index+1}
+  </SlideItem>
+));
+
 export default class AutoPlayCarousel extends React.Component {
   state = {
     activeItemIndex: 0,
@@ -55,11 +61,7 @@ export default class AutoPlayCarousel extends React.Component {
           leftChevron={<button>{'<'}</button>}
           chevronWidth={chevronWidth}
           outsideChevron
-          children={range(noOfItems).map(index => (
-            <SlideItem key={index}>
-              {index+1}
-            </SlideItem>
-          ))}
+          children={carouselItems}
         />
       </Wrapper>
     );
