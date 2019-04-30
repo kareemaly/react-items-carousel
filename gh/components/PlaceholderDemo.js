@@ -64,7 +64,7 @@ export class PlaceholderDemo extends React.Component {
         </div>
         {
           isLoading && (
-            <CenteredRow justify={'center'} type={'flex'}>
+            <CenteredRow withMaxWidth justify={'center'} type={'flex'}>
               <Col>
                 <Button onClick={() => this.setState({ isLoading: false })}>
                   <Icon type="loading" style={{ marginRight: 10 }} />
@@ -74,7 +74,7 @@ export class PlaceholderDemo extends React.Component {
             </CenteredRow>
           )
         }
-        <CenteredRow>
+        <CenteredRow withMaxWidth>
           <Col span={24}>
             <EditorViewer
               wrapperStyle={wrapperStyle}

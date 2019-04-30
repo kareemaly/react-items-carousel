@@ -1,9 +1,14 @@
 import React from 'react';
-import { Layout , Divider, Menu } from 'antd';
+import { Layout , Divider, Menu, Col } from 'antd';
 import Hero from './components/Hero';
 import Playground from './components/Playground';
 import pckJson from '../package.json';
 import PlaceholderDemo from './components/PlaceholderDemo';
+import AutoPlayCarousel from './components/AutoPlayCarousel';
+import DemoHeader from './components/DemoHeader';
+import AutoPlayCarouselString from '!!raw-loader!./components/AutoPlayCarousel';
+import CenteredRow from './components/CenteredRow';
+import JsxEditor from './components/JsxEditor';
 
 const { Content, Footer, Header } = Layout;
 
@@ -23,6 +28,17 @@ const Page = () => (
       <Playground />
       <Divider />
       <PlaceholderDemo />
+      <Divider/>
+      <DemoHeader
+        title={'Autoplay'}
+        description={'Example that shows how to extend the carousel to add autoplay functionality'}
+      />
+      <AutoPlayCarousel/>
+      <CenteredRow withMaxWidth>
+        <Col span={24}>
+          <JsxEditor value={AutoPlayCarouselString} />
+        </Col>
+      </CenteredRow>
     </Content>
     <Footer style={{ background: '#FFF' }}>
       © 2019 <a href="http://www.bitriddler.com">bitriddler</a> | Kareem Elbahrawy

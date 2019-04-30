@@ -51,6 +51,7 @@
     "glob": "^7.1.1",
     "html-webpack-plugin": "^3.2.0",
     "pre-commit": "^1.2.2",
+    "raw-loader": "^2.0.0",
     "react-ace": "^6.5.0",
     "react-docgen": "^3.0.0",
     "react-dom": "16.8.1",

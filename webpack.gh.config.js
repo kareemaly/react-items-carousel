@@ -31,6 +31,10 @@ module.exports = {
         test: /\.css$/,
         use: ['style-loader', 'css-loader'],
       },
+      {
+        test: /\.txt$/i,
+        use: 'raw-loader',
+      },
     ]
   },
   devtool: isProduction ? 'source-maps' : 'eval',
