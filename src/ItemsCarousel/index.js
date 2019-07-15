@@ -240,7 +240,7 @@ class ItemsCarousel extends React.Component {
           children={({ translateX }) => this.renderList({ items, measureRef, containerWidth, translateX })}
         />
         {
-          _showRightChevron && 
+          _showRightChevron &&
           <CarouselRightChevron
             chevronWidth={chevronWidth}
             outsideChevron={outsideChevron}
@@ -256,7 +256,7 @@ class ItemsCarousel extends React.Component {
           </CarouselRightChevron>
         }
         {
-          _showLeftChevron && 
+          _showLeftChevron &&
           <CarouselLeftChevron
             chevronWidth={chevronWidth}
             outsideChevron={outsideChevron}
@@ -284,8 +284,8 @@ class ItemsCarousel extends React.Component {
       >
         {({ measureRef, contentRect }) => {
           return this.renderContent({
-            containerWidth: contentRect.bounds.width,
-            containerHeight: contentRect.bounds.height,
+            containerWidth: contentRect.bounds.width || 0,
+            containerHeight: contentRect.bounds.height || 0,
             measureRef,
           });
         }}
@@ -316,7 +316,7 @@ ItemsCarousel.propTypes = {
   showSlither: PropTypes.bool,
 
   /**
-   * If true first item will have twice the 
+   * If true first item will have twice the
    */
   firstAndLastGutter: PropTypes.bool,
 
