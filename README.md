@@ -28,7 +28,7 @@ export default class Test extends React.Component {
 
     setTimeout(() => {
       this.setState({
-        children: createChildren(20),
+        children: this.createChildren(20),
       })
     }, 100);
   }
