@@ -107,4 +107,9 @@ export default {
     damping: PropTypes.number,
     precision: PropTypes.number,
   }),
+
+  /**
+   * Function to be used to watch carousel state
+   */
+  onActiveStateChange: PropTypes.func,
 };

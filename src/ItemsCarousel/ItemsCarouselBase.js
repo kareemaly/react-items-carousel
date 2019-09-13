@@ -57,6 +57,45 @@ const CarouselLeftChevron = styled(props => <CarouselChevron {...props} />)`
 `;
 
 class ItemsCarouselBase extends React.Component {
+  componentDidUpdate(prevProps) {
+    if (
+      this.props.onActiveStateChange &&
+      this.props.activeItemIndex !== prevProps.activeItemIndex
+    ) {
+      this.props.onActiveStateChange({
+        ...this.getScrollState(),
+      })
+    }
+  }
+
+  getScrollState = () => {
+    let {
+      numberOfCards,
+      activeItemIndex,
+      activePosition,
+      slidesToScroll,
+    } = this.props;
+
+    const items = this.getItems();
+
+    return {
+      isLastScroll: !showRightChevron({
+        activeItemIndex,
+        activePosition,
+        numberOfChildren: items.length,
+        numberOfCards,
+        slidesToScroll,
+      }),
+      isFirstScroll: !showLeftChevron({
+        activeItemIndex,
+        activePosition,
+        numberOfChildren: items.length,
+        numberOfCards,
+        slidesToScroll,
+      })
+    }
+  };
+
   getItems = () => {
     const {
       isPlaceholderMode,
@@ -142,6 +181,7 @@ class ItemsCarouselBase extends React.Component {
       outsideChevron,
       requestToChangeActive,
       slidesToScroll,
+      onActiveStateChange,
       ...props
     } = this.props;
 
@@ -158,21 +198,12 @@ class ItemsCarouselBase extends React.Component {
       showSlither,
     });
 
-    const _showRightChevron = rightChevron && showRightChevron({
-      activeItemIndex,
-      activePosition,
-      numberOfChildren: items.length,
-      numberOfCards,
-      slidesToScroll,
-    });
-
-    const _showLeftChevron = leftChevron && showLeftChevron({
-      activeItemIndex,
-      activePosition,
-      numberOfChildren: items.length,
-      numberOfCards,
-      slidesToScroll,
-    });
+    const {
+      isFirstScroll,
+      isLastScroll,
+    } = this.getScrollState();
+    const _showRightChevron = rightChevron && !isLastScroll;
+    const _showLeftChevron = leftChevron && !isFirstScroll;
 
     return (
       <CarouselWrapper

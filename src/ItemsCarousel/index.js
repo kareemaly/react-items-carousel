@@ -27,6 +27,7 @@ ItemsCarousel.defaultProps = {
   numberOfPlaceholderItems: 0,
   rightChevron: null,
   leftChevron: null,
+  onActiveStateChange: null,
 };
 
 export default ItemsCarousel;

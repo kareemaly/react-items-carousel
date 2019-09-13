@@ -45,6 +45,8 @@ export default () => {
 | Property                 | Type                             | Default | Description                                                                           |
 |--------------------------|----------------------------------|---------|---------------------------------------------------------------------------------------|
 | children *               | node[]                           |         | The cards to render in the carousel. You must specify a height for each card.         |
+| requestToChangeActive *  | function                         |         | This function accepts the new activeItemIndex and should update your component state. |
+| activeItemIndex *        | int                              |         | This defines which item should be active.                                             |
 | numberOfCards            | number                           | 3       | Number of cards to show per slide.                                                    |
 | gutter                   | number                           | 0       | Space between cards.                                                                  |
 | showSlither              | boolean                          | false   | If true a slither of next card will be shown.                                         |
@@ -52,15 +54,14 @@ export default () => {
 | enablePlaceholder        | boolean                          | false   | If true, component will render `placeholderItem` until children are passed.           |
 | placeholderItem          | node                             | null    | If `enablePlaceholder` is true, this will be rendered until children are passed.      |
 | numberOfPlaceholderItems | number                           | 0       | This controls how many `placeholderItem` to render if `enablePlaceholder` is true.    |
-| requestToChangeActive *  | function                         |         | This function accepts the new activeItemIndex and should update your component state. |
-| activeItemIndex *        | int                              |         | This defines which item should be active.                                             |
 | activePosition           | enum ('left', 'center', 'right') | left    | The position of the active item.                                                      |
 | rightChevron             | node                             | null    | Right chevron node.                                                                   |
 | leftChevron              | node                             | null    | Left chevron node.                                                                    |
 | chevronWidth             | number                           | 0       | This value should be the width of left and right chevron.                             |
 | outsideChevron           | boolean                          | false   | If true the chevron will be rendered outside the carousel.                            |
 | slidesToScroll           | number                           | 1       | Number of cards to scroll when right and left chevrons are clicked.                   |
-| disableSwipe             | boolean                          | false   | Disables left and right swiping on touch devices.                                    |
+| disableSwipe             | boolean                          | false   | Disables left and right swiping on touch devices.                                     |
+| onStateChange            | func                             | null    | This function will be called when state change with `{ isFirstScroll: Boolean, isLastScroll: Boolean }`. It can be used to fetch more data for example. |
 
 Contributing
 --------------
