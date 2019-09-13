@@ -19,7 +19,6 @@
     "deploy:gh": "gh-pages -d gh-build",
     "build:gh": "NODE_ENV=production webpack --config webpack.gh.config.js",
     "start:gh": "NODE_ENV=development webpack-dev-server --config webpack.gh.config.js",
-    "doc": "node ./bin/doc.js",
     "prepublish": "yarn build",
     "build": "webpack --config webpack.lib.config.js",
     "lint": "eslint src"
@@ -53,7 +52,6 @@
     "pre-commit": "^1.2.2",
     "raw-loader": "^2.0.0",
     "react-ace": "^6.5.0",
-    "react-docgen": "^3.0.0",
     "react-dom": "16.8.1",
     "react-hot-loader": "^4.6.5",
     "react-tap-event-plugin": "^3.0.3",
