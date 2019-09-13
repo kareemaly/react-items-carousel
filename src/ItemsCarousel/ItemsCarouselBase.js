@@ -62,13 +62,14 @@ class ItemsCarouselBase extends React.Component {
       isPlaceholderMode,
       placeholderItem,
       numberOfPlaceholderItems,
+      children
     } = this.props;
 
     if (isPlaceholderMode) {
       return Array.from(Array(numberOfPlaceholderItems)).map(index => placeholderItem);
     }
 
-    return this.props.children;
+    return React.Children.toArray(children);
   };
 
   renderList({ items, translateX, containerWidth, measureRef }) {
