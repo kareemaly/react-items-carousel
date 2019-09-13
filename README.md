@@ -14,89 +14,45 @@ Example
 --------------
 
 ```javascript
-import React from 'react';
+import React, { useState } from 'react';
 import ItemsCarousel from 'react-items-carousel';
-import range from 'lodash/range';
 
-export default class Test extends React.Component {
-
-  componentWillMount() {
-    this.setState({
-      children: [],
-      activeItemIndex: 0,
-    });
-
-    setTimeout(() => {
-      this.setState({
-        children: createChildren(20),
-      })
-    }, 100);
-  }
-
-  createChildren = n => range(n).map(i => <div key={i} style={{ height: 200, background: '#333' }}>{i}</div>);
-
-  changeActiveItem = (activeItemIndex) => this.setState({ activeItemIndex });
-
-  render() {
-    const {
-      activeItemIndex,
-      children,
-    } = this.state;
-
-    return (
-      <ItemsCarousel
-        // Placeholder configurations
-        enablePlaceholder
-        numberOfPlaceholderItems={5}
-        minimumPlaceholderTime={1000}
-        placeholderItem={<div style={{ height: 200, background: '#900' }}>Placeholder</div>}
-
-        // Carousel configurations
-        numberOfCards={3}
-        gutter={12}
-        showSlither={true}
-        firstAndLastGutter={true}
-        freeScrolling={false}
-
-        // Active item configurations
-        requestToChangeActive={this.changeActiveItem}
-        activeItemIndex={activeItemIndex}
-        activePosition={'center'}
-
-        chevronWidth={24}
-        rightChevron={'>'}
-        leftChevron={'<'}
-        outsideChevron={false}
-      >
-        {children}
-      </ItemsCarousel>
-    );  
-  }
-} 
+export default () => {
+  const [activeItemIndex, setActiveItemIndex] = useState(0);
+  
+  return (
+    <ItemsCarousel
+      requestToChangeActive={setActiveItemIndex}
+      activeItemIndex={activeItemIndex}
+    >
+      <div style={{ height: 200, background: '#333' }}>First card</div>
+      <div style={{ height: 200, background: '#333' }}>Second card</div>
+      <div style={{ height: 200, background: '#333' }}>Third card</div>
+      <div style={{ height: 200, background: '#333' }}>Fourth card</div>
+    </ItemsCarousel>
+  );
+};
 ```
 
-
-
-| Property | Type | Default | Description |
-| --- | --- | --- | --- |
-| children* | arrayOf (element) |  | Carousel react items. |
-| numberOfCards | number | 3 | Number of cards to show. |
-| gutter | number | 0 | Space between carousel items. |
-| showSlither | bool | false | If true a slither of next item will be showed. |
-| firstAndLastGutter | bool | false | If true first item will have twice the |
-| freeScrolling | bool | false | If true, free scrolling will be enabled. |
-| enablePlaceholder | bool | false | Enable placeholder items while data loads |
-| placeholderItem | element |  | Placeholder item. Ignored if enablePlaceholder is false. |
-| numberOfPlaceholderItems | number |  | Number of placeholder items. Ignored if enablePlaceholder is false. |
-| requestToChangeActive | func |  | This is called when we want to change the active item.<br />Right now we will never call this unless a left or right chevrons are clicked. |
-| activeItemIndex | number | 0 | This gives you the control to change the current active item.<br />This is ignored if freeScrolling is true. |
-| activePosition | enum ('left', 'center', 'right') | 'left' | The active item position.<br />This is ignored if freeScrolling is true. |
-| rightChevron | union (<br />element,<br />string<br />) |  | Right chevron element. If passed `requestToChangeActive` must be set. |
-| leftChevron | union (<br />element,<br />string<br />) |  | Left chevron element. If passed `requestToChangeActive` must be set. |
-| chevronWidth | number |  | Chevron width. |
-| outsideChevron | bool |  | If true the chevron will be outside the carousel. |
-| slidesToScroll | number | 1 | Number of slides to scroll when clicked on right or left chevron. |
-| springConfig | shape {<br />`stiffness: number`<br />`damping: number`<br />`precision: number`<br />} |  | React motion configurations.<br />[More about this here](https://github.com/chenglou/react-motion#--spring-val-number-config-springhelperconfig--opaqueconfig) |
+| Property                 | Type                             | Default | Description                                                                           |
+|--------------------------|----------------------------------|---------|---------------------------------------------------------------------------------------|
+| children *               | node[]                           |         | The cards to render in the carousel. You must specify a height for each card.         |
+| numberOfCards            | number                           | 3       | Number of cards to show per slide.                                                    |
+| gutter                   | number                           | 0       | Space between cards.                                                                  |
+| showSlither              | boolean                          | false   | If true a slither of next card will be shown.                                         |
+| firstAndLastGutter       | boolean                          | false   | If true first and last cards will have twice the space.                               |
+| enablePlaceholder        | boolean                          | false   | If true, component will render `placeholderItem` until children are passed.           |
+| placeholderItem          | node                             | null    | If `enablePlaceholder` is true, this will be rendered until children are passed.      |
+| numberOfPlaceholderItems | number                           | 0       | This controls how many `placeholderItem` to render if `enablePlaceholder` is true.    |
+| requestToChangeActive *  | function                         |         | This function accepts the new activeItemIndex and should update your component state. |
+| activeItemIndex *        | int                              |         | This defines which item should be active.                                             |
+| activePosition           | enum ('left', 'center', 'right') | left    | The position of the active item.                                                      |
+| rightChevron             | node                             | null    | Right chevron node.                                                                   |
+| leftChevron              | node                             | null    | Left chevron node.                                                                    |
+| chevronWidth             | number                           | 0       | This value should be the width of left and right chevron.                             |
+| outsideChevron           | boolean                          | false   | If true the chevron will be rendered outside the carousel.                            |
+| slidesToScroll           | number                           | 1       | Number of cards to scroll when right and left chevrons are clicked.                   |
+| disableSwipe             | boolean                          | false   | Disables left and right swiping on touch devices.                                    |
 
 Contributing
 --------------

@@ -1,4 +1,5 @@
 import React from 'react';
+import withSwipe from './withSwipe';
 import withContainerWidth from './withContainerWidth';
 import pipe from './pipe';
 import ItemsCarouselBase from './ItemsCarouselBase';
@@ -6,6 +7,7 @@ import userPropTypes from './userPropTypes';
 import withPlaceholderMode from './withPlaceholderMode';
 
 const ItemsCarousel = pipe(
+  withSwipe(),
   withContainerWidth(),
   withPlaceholderMode(),
 )(ItemsCarouselBase);

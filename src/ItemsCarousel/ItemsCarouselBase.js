@@ -122,6 +122,11 @@ class ItemsCarouselBase extends React.Component {
       // Props coming from withContainerWidth
       containerWidth,
       measureRef,
+      // Props coming from withSwipe
+      touchRelativeX,
+      onWrapperTouchStart,
+      onWrapperTouchEnd,
+      onWrapperTouchMove,
       // Props coming from user
       gutter,
       numberOfCards,
@@ -170,6 +175,9 @@ class ItemsCarouselBase extends React.Component {
 
     return (
       <CarouselWrapper
+        onTouchStart={onWrapperTouchStart}
+        onTouchEnd={onWrapperTouchEnd}
+        onTouchMove={onWrapperTouchMove}
         {...props}
       >
         <Motion
@@ -177,7 +185,7 @@ class ItemsCarouselBase extends React.Component {
             translateX,
           }}
           style={{
-            translateX: spring(translateX, springConfig),
+            translateX: spring(translateX + touchRelativeX, springConfig),
           }}
           children={({ translateX }) => this.renderList({
             items,
@@ -236,6 +244,11 @@ ItemsCarouselBase.propTypes = {
   // Props coming from withContainerWidth
   containerWidth: PropTypes.number.isRequired,
   measureRef: PropTypes.object.isRequired,
+  // Props coming from withSwipe
+  touchRelativeX: PropTypes.number.isRequired,
+  onWrapperTouchStart: PropTypes.func,
+  onWrapperTouchEnd: PropTypes.func,
+  onWrapperTouchMove: PropTypes.func,
 };
 
 export default ItemsCarouselBase;
