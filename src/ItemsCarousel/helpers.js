@@ -1,5 +1,5 @@
-import min from 'lodash/min';
-import max from 'lodash/max';
+import min from 'lodash.min';
+import max from 'lodash.max';
 
 export const getFirstAndLastItemGutter = ({ gutter }) =>  gutter * 2;
 export const getSlither = ({ gutter }) => gutter;
