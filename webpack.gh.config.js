@@ -32,6 +32,10 @@ module.exports = {
         use: ['style-loader', 'css-loader'],
       },
       {
+        test: /\.(png|svg|jpg|jpeg|gif)$/,
+        use: ['file-loader'],
+      },
+      {
         test: /\.txt$/i,
         use: 'raw-loader',
       },
@@ -40,6 +44,6 @@ module.exports = {
   devtool: isProduction ? 'source-maps' : 'eval',
   mode: isProduction ? 'production' : 'development',
   devServer: isProduction ? undefined : {
-    port: 9000
+    port: process.env.PORT || 9000
   },
 };
