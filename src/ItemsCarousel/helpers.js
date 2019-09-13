@@ -79,7 +79,7 @@ export const calculateLastPossibleTranslateX = ({
   const hiddenChildrenLength = (numberOfChildren - numberOfCards);
   let translateX = itemWidth * hiddenChildrenLength + gutter * hiddenChildrenLength;
 
-  if(firstAndLastGutter) {
+  if(firstAndLastGutter && !showSlither) {
     translateX += getFirstAndLastItemGutter({ gutter });
   }
 
