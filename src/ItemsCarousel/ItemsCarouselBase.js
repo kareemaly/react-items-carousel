@@ -181,6 +181,8 @@ class ItemsCarouselBase extends React.Component {
       outsideChevron,
       requestToChangeActive,
       slidesToScroll,
+      alwaysShowChevrons,
+      // to remove from DOM
       onActiveStateChange,
       ...props
     } = this.props;
@@ -202,8 +204,8 @@ class ItemsCarouselBase extends React.Component {
       isFirstScroll,
       isLastScroll,
     } = this.getScrollState();
-    const _showRightChevron = rightChevron && !isLastScroll;
-    const _showLeftChevron = leftChevron && !isFirstScroll;
+    const _showRightChevron = rightChevron && (alwaysShowChevrons || !isLastScroll);
+    const _showLeftChevron = leftChevron && (alwaysShowChevrons || !isFirstScroll);
 
     return (
       <CarouselWrapper

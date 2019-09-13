@@ -59,6 +59,7 @@ export default () => {
 | leftChevron              | node                             | null    | Left chevron node.                                                                    |
 | chevronWidth             | number                           | 0       | This value should be the width of left and right chevron.                             |
 | outsideChevron           | boolean                          | false   | If true the chevron will be rendered outside the carousel.                            |
+| alwaysShowChevrons       | boolean                          | false   | If true the chevrons will always be visible even if there were no cards to scroll.    |
 | slidesToScroll           | number                           | 1       | Number of cards to scroll when right and left chevrons are clicked.                   |
 | disableSwipe             | boolean                          | false   | Disables left and right swiping on touch devices.                                     |
 | onStateChange            | func                             | null    | This function will be called when state change with `{ isFirstScroll: Boolean, isLastScroll: Boolean }`. It can be used to fetch more data for example. |

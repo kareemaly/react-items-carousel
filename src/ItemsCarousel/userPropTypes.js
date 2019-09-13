@@ -89,6 +89,11 @@ export default {
   outsideChevron: PropTypes.bool,
 
   /**
+   * Whether or not to always show chevrons
+   */
+  alwaysShowChevrons: PropTypes.bool,
+
+  /**
    * Number of slides to scroll when clicked on right or left chevron.
    */
   slidesToScroll: PropTypes.number,

@@ -8,6 +8,7 @@ const mainState = {
     activePosition: 'center',
     chevronWidth: 60,
     disableSwipe: false,
+    alwaysShowChevrons: false,
   },
 };
 

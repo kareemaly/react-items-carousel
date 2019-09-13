@@ -28,6 +28,7 @@ ItemsCarousel.defaultProps = {
   rightChevron: null,
   leftChevron: null,
   onActiveStateChange: null,
+  alwaysShowChevrons: false,
 };
 
 export default ItemsCarousel;

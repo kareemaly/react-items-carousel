@@ -9,7 +9,6 @@ const JSONEditor = ({
 }) => {
   const [value, setValue] = useState(JSON.stringify(json, null, 2));
   useEffect(() => {
-    console.log('setting value');
     setValue(JSON.stringify(json, null, 2));
   }, [json]);
   const onChange = value => {
