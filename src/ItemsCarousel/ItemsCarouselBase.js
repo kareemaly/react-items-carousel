@@ -244,7 +244,10 @@ ItemsCarouselBase.propTypes = {
   isPlaceholderMode: PropTypes.bool.isRequired,
   // Props coming from withContainerWidth
   containerWidth: PropTypes.number.isRequired,
-  measureRef: PropTypes.object.isRequired,
+  measureRef: PropTypes.oneOfType([
+    PropTypes.func, // for legacy refs
+    PropTypes.shape({ current: PropTypes.object })
+  ]).isRequired,
   // Props coming from withSwipe
   touchRelativeX: PropTypes.number.isRequired,
   onWrapperTouchStart: PropTypes.func,
