@@ -5,9 +5,9 @@ const mainState = {
   wrapperStyle: { padding: "0 60px", maxWidth: 800, margin: '0 auto' },
   componentProps: {
     gutter: 12,
-    // freeScrolling: false,
     activePosition: 'center',
     chevronWidth: 60,
+    disableSwipe: false,
   },
 };
 
