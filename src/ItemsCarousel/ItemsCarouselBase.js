@@ -117,19 +117,22 @@ class ItemsCarouselBase extends React.Component {
       numberOfCards,
       firstAndLastGutter,
       showSlither,
+      classes,
     } = this.props;
 
     return (
-      <Wrapper>
+      <Wrapper className={classes.itemsWrapper}>
         <SliderItemsWrapper
           ref={measureRef}
           style={{
             transform: `translateX(${translateX * -1}px)`,
           }}
+          className={classes.itemsInnerWrapper}
         >
           {items.map((child, index) => (
             <SliderItem
               key={index}
+              className={classes.itemWrapper}
               width={calculateItemWidth({
                 firstAndLastGutter,
                 containerWidth,
@@ -182,9 +185,7 @@ class ItemsCarouselBase extends React.Component {
       requestToChangeActive,
       slidesToScroll,
       alwaysShowChevrons,
-      // to remove from DOM
-      onActiveStateChange,
-      ...props
+      classes,
     } = this.props;
 
     const items = this.getItems();
@@ -212,7 +213,7 @@ class ItemsCarouselBase extends React.Component {
         onTouchStart={onWrapperTouchStart}
         onTouchEnd={onWrapperTouchEnd}
         onTouchMove={onWrapperTouchMove}
-        {...props}
+        className={classes.wrapper}
       >
         <Motion
           defaultStyle={{
@@ -233,6 +234,7 @@ class ItemsCarouselBase extends React.Component {
           <CarouselRightChevron
             chevronWidth={chevronWidth}
             outsideChevron={outsideChevron}
+            className={classes.rightChevronWrapper}
             onClick={() => requestToChangeActive(calculateNextIndex({
               activePosition,
               activeItemIndex,
@@ -249,6 +251,7 @@ class ItemsCarouselBase extends React.Component {
           <CarouselLeftChevron
             chevronWidth={chevronWidth}
             outsideChevron={outsideChevron}
+            className={classes.leftChevronWrapper}
             onClick={() => requestToChangeActive(calculatePreviousIndex({
               activePosition,
               activeItemIndex,

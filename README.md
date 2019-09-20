@@ -63,6 +63,7 @@ export default () => {
 | slidesToScroll           | number                           | 1       | Number of cards to scroll when right and left chevrons are clicked.                   |
 | disableSwipe             | boolean                          | false   | Disables left and right swiping on touch devices.                                     |
 | onStateChange            | func                             | null    | This function will be called when state change with `{ isFirstScroll: Boolean, isLastScroll: Boolean }`. It can be used to fetch more data for example. |
+| classes                  | `{ wrapper: string, itemsWrapper: string, itemsInnerWrapper: string, itemWrapper: string, rightChevronWrapper: string, leftChevronWrapper: string }` | {}      | An object of classes to pass to the carousel inner elements | 
 
 Contributing
 --------------

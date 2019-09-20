@@ -117,4 +117,13 @@ export default {
    * Function to be used to watch carousel state
    */
   onActiveStateChange: PropTypes.func,
+
+  classes: PropTypes.shape({
+    wrapper: PropTypes.string,
+    itemsWrapper: PropTypes.string,
+    itemsInnerWrapper: PropTypes.string,
+    itemWrapper: PropTypes.string,
+    rightChevronWrapper: PropTypes.string,
+    leftChevronWrapper: PropTypes.string,
+  }),
 };
