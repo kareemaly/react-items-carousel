@@ -1,6 +1,6 @@
 {
   "name": "react-items-carousel",
-  "version": "2.6.1",
+  "version": "2.7.0",
   "description": "React Items Carousel",
   "homepage": "https://bitriddler.github.io/react-items-carousel",
   "main": "./dist/react-items-carousel.js",
