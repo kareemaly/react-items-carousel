@@ -7,7 +7,6 @@ import {
   calculateItemWidth,
   calculateItemLeftGutter,
   calculateItemRightGutter,
-  calculateTranslateX,
   showLeftChevron,
   showRightChevron,
   calculateNextIndex,
@@ -74,9 +73,8 @@ class ItemsCarouselBase extends React.Component {
       activeItemIndex,
       activePosition,
       slidesToScroll,
+      items,
     } = this.props;
-
-    const items = this.getItems();
 
     return {
       isLastScroll: !showRightChevron({
@@ -94,21 +92,6 @@ class ItemsCarouselBase extends React.Component {
         slidesToScroll,
       })
     }
-  };
-
-  getItems = () => {
-    const {
-      isPlaceholderMode,
-      placeholderItem,
-      numberOfPlaceholderItems,
-      children
-    } = this.props;
-
-    if (isPlaceholderMode) {
-      return Array.from(Array(numberOfPlaceholderItems)).map(index => placeholderItem);
-    }
-
-    return React.Children.toArray(children);
   };
 
   renderList({ items, translateX, containerWidth, measureRef }) {
@@ -186,20 +169,11 @@ class ItemsCarouselBase extends React.Component {
       slidesToScroll,
       alwaysShowChevrons,
       classes,
+      items,
+      activeItemTranslateX,
+      nextItemIndex,
+      previousItemIndex,
     } = this.props;
-
-    const items = this.getItems();
-
-    const translateX = calculateTranslateX({
-      activeItemIndex,
-      activePosition,
-      containerWidth,
-      numberOfChildren: items.length,
-      numberOfCards,
-      gutter,
-      firstAndLastGutter,
-      showSlither,
-    });
 
     const {
       isFirstScroll,
@@ -217,10 +191,10 @@ class ItemsCarouselBase extends React.Component {
       >
         <Motion
           defaultStyle={{
-            translateX,
+            translateX: activeItemTranslateX,
           }}
           style={{
-            translateX: spring(translateX + touchRelativeX, springConfig),
+            translateX: spring(activeItemTranslateX + touchRelativeX, springConfig),
           }}
           children={({ translateX }) => this.renderList({
             items,
@@ -235,13 +209,7 @@ class ItemsCarouselBase extends React.Component {
             chevronWidth={chevronWidth}
             outsideChevron={outsideChevron}
             className={classes.rightChevronWrapper}
-            onClick={() => requestToChangeActive(calculateNextIndex({
-              activePosition,
-              activeItemIndex,
-              numberOfCards,
-              slidesToScroll,
-              numberOfChildren: items.length,
-            }))}
+            onClick={() => requestToChangeActive(nextItemIndex)}
           >
             {rightChevron}
           </CarouselRightChevron>
@@ -252,13 +220,7 @@ class ItemsCarouselBase extends React.Component {
             chevronWidth={chevronWidth}
             outsideChevron={outsideChevron}
             className={classes.leftChevronWrapper}
-            onClick={() => requestToChangeActive(calculatePreviousIndex({
-              activePosition,
-              activeItemIndex,
-              numberOfCards,
-              slidesToScroll,
-              numberOfChildren: items.length,
-            }))}
+            onClick={() => requestToChangeActive(previousItemIndex)}
           >
             {leftChevron}
           </CarouselLeftChevron>
@@ -276,8 +238,12 @@ ItemsCarouselBase.defaultProps = {
 
 ItemsCarouselBase.propTypes = {
   ...userPropTypes,
-  // Props coming from withPlaceholderMode
-  isPlaceholderMode: PropTypes.bool.isRequired,
+
+  // Props coming from withCarouselValues
+  items: PropTypes.arrayOf(PropTypes.node).isRequired,
+  activeItemTranslateX: PropTypes.number.isRequired,
+  nextItemIndex: PropTypes.number.isRequired,
+  previousItemIndex: PropTypes.number.isRequired,
   // Props coming from withContainerWidth
   containerWidth: PropTypes.number.isRequired,
   measureRef: PropTypes.oneOfType([

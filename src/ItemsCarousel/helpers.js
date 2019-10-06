@@ -86,7 +86,7 @@ export const calculateLastPossibleTranslateX = ({
   return translateX;
 }
 
-export const calculateTranslateX = ({
+export const calculateActiveItemTranslateX = ({
   activeItemIndex,
   activePosition,
   containerWidth,
@@ -246,4 +246,3 @@ export const calculatePreviousIndex = ({
       ]);
   }
 }
-

@@ -5,11 +5,13 @@ import pipe from './pipe';
 import ItemsCarouselBase from './ItemsCarouselBase';
 import userPropTypes from './userPropTypes';
 import withPlaceholderMode from './withPlaceholderMode';
+import withCarouselValues from './withCarouselValues';
 
 const ItemsCarousel = pipe(
   withSwipe(),
-  withContainerWidth(),
   withPlaceholderMode(),
+  withCarouselValues(),
+  withContainerWidth(),
 )(ItemsCarouselBase);
 
 ItemsCarousel.propTypes = userPropTypes;

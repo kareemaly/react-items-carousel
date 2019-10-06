@@ -44,11 +44,20 @@ export default () => (Cpmt) => {
       }, this.props.minimumPlaceholderTime);
     };
 
+    getPlaceholderItems = () => {
+      const {
+        placeholderItem,
+        numberOfPlaceholderItems,
+      } = this.props;
+
+      return Array.from(Array(numberOfPlaceholderItems)).map(index => placeholderItem);
+    };
+
     render() {
       return (
         <Cpmt
           {...this.props}
-          isPlaceholderMode={this.state.isPlaceholderMode}
+          items={this.state.isPlaceholderMode ? this.getPlaceholderItems() : this.props.items}
         />
       )
     }

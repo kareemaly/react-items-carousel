@@ -24,8 +24,7 @@
     "lint": "eslint src"
   },
   "pre-commit": [
-    "lint",
-    "doc"
+    "lint"
   ],
   "keywords": [
     "react-items-carousel",
