@@ -47,7 +47,7 @@ export default () => {
 | requestToChangeActive *  | function                         |         | This function accepts the new activeItemIndex and should update your component state. |
 | activeItemIndex *        | int                              |         | This defines which item should be active.                                             |
 | numberOfCards            | number                           | 3       | Number of cards to show per slide.                                                    |
-| infiniteLoop             | boolean                          | false   | Enable infinite loop. see [Infinite loop limitations](#inifinite-loop-limitations)                                                                  |
+| infiniteLoop             | boolean                          | false   | Enable infinite loop. see [Infinite loop limitations](#infinite-loop-limitations)                                                                  |
 | gutter                   | number                           | 0       | Space between cards.                                                                  |
 | showSlither              | boolean                          | false   | If true a slither of next card will be shown.                                         |
 | firstAndLastGutter       | boolean                          | false   | If true first and last cards will have twice the space.                               |
