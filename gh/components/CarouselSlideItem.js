@@ -32,6 +32,23 @@ export const SlideItem = styled.div`
   background-position: center;
 `;
 
+const SlideItemIndex = styled.div`
+  color: #FFF;
+  font-weight: bold;
+  font-size: 16px;
+  background: #333;
+  border: 2px solid #000;
+  border-left: 0;
+  border-top: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
 export const createImageChildren = n => range(n).map((i) => (
-  <SlideItem key={i} src={items[i%items.length]} />
+  <SlideItem key={i} src={items[i%items.length]}>
+    <SlideItemIndex>{i}</SlideItemIndex>
+  </SlideItem>
 ));

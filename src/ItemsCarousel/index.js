@@ -5,11 +5,21 @@ import pipe from './pipe';
 import ItemsCarouselBase from './ItemsCarouselBase';
 import userPropTypes from './userPropTypes';
 import withPlaceholderMode from './withPlaceholderMode';
+import withCarouselValues from './withCarouselValues';
+import withInfiniteLoopCarouselValues from './infiniteLoop/withInfiniteLoopCarouselValues';
+
+const hocFuncValuesSwitcher = () => (Cpmt) => (props) => {
+  const canEnableInfiniteLoop = React.Children.toArray(props.children).length >= props.numberOfCards;
+  return props.infiniteLoop && canEnableInfiniteLoop ?
+    withInfiniteLoopCarouselValues()(Cpmt)(props) :
+    withCarouselValues()(Cpmt)(props);
+}
 
 const ItemsCarousel = pipe(
   withSwipe(),
-  withContainerWidth(),
   withPlaceholderMode(),
+  hocFuncValuesSwitcher(),
+  withContainerWidth(),
 )(ItemsCarouselBase);
 
 ItemsCarousel.propTypes = userPropTypes;
@@ -30,6 +40,8 @@ ItemsCarousel.defaultProps = {
   onActiveStateChange: null,
   alwaysShowChevrons: false,
   classes: {},
+  infiniteLoop: false,
+  calculateActualTranslateX: translateX => translateX,
 };
 
 export default ItemsCarousel;

@@ -86,7 +86,7 @@ export const calculateLastPossibleTranslateX = ({
   return translateX;
 }
 
-export const calculateTranslateX = ({
+export const calculateActiveItemTranslateX = ({
   activeItemIndex,
   activePosition,
   containerWidth,
@@ -95,6 +95,7 @@ export const calculateTranslateX = ({
   gutter,
   firstAndLastGutter,
   showSlither,
+  infiniteLoop,
 }) => {
   let gotoIndex = activeItemIndex;
 
@@ -106,18 +107,18 @@ export const calculateTranslateX = ({
     gotoIndex -= numberOfCards - 1;
   }
 
-  // Items are larger than container then 
+  // Items are larger than container then
   if(areItemsLargerThanContainer({ numberOfChildren, numberOfCards })) {
     return 0;
   }
 
   // The first item
-  if(gotoIndex <= 0) {
+  if(!infiniteLoop && gotoIndex <= 0) {
     return 0;
   }
 
   // Last items to show
-  if(gotoIndex > (numberOfChildren - numberOfCards - 1)) {
+  if(!infiniteLoop && gotoIndex > (numberOfChildren - numberOfCards - 1)) {
     return calculateLastPossibleTranslateX({
       activeItemIndex: gotoIndex,
       activePosition,
@@ -246,4 +247,3 @@ export const calculatePreviousIndex = ({
       ]);
   }
 }
-

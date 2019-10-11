@@ -1,17 +1,14 @@
 react-items-carousel
 ---------------
 
-Installing
-------------
+# Installation
 ```
 $ npm install react-items-carousel --save
 ```
 
-[Demos](https://bitriddler.github.io/react-items-carousel/)
---------------
+# [Demos](https://bitriddler.github.io/react-items-carousel/)
 
-Example
---------------
+# Example
 
 ```javascript
 import React, { useState } from 'react';
@@ -42,12 +39,15 @@ export default () => {
 };
 ```
 
+# Component Props
+
 | Property                 | Type                             | Default | Description                                                                           |
 |--------------------------|----------------------------------|---------|---------------------------------------------------------------------------------------|
 | children *               | node[]                           |         | The cards to render in the carousel. You must specify a height for each card.         |
 | requestToChangeActive *  | function                         |         | This function accepts the new activeItemIndex and should update your component state. |
 | activeItemIndex *        | int                              |         | This defines which item should be active.                                             |
 | numberOfCards            | number                           | 3       | Number of cards to show per slide.                                                    |
+| infiniteLoop             | boolean                          | false   | Enable infinite loop. see [Infinite loop limitations](#inifinite-loop-limitations)                                                                  |
 | gutter                   | number                           | 0       | Space between cards.                                                                  |
 | showSlither              | boolean                          | false   | If true a slither of next card will be shown.                                         |
 | firstAndLastGutter       | boolean                          | false   | If true first and last cards will have twice the space.                               |
@@ -63,10 +63,15 @@ export default () => {
 | slidesToScroll           | number                           | 1       | Number of cards to scroll when right and left chevrons are clicked.                   |
 | disableSwipe             | boolean                          | false   | Disables left and right swiping on touch devices.                                     |
 | onStateChange            | func                             | null    | This function will be called when state change with `{ isFirstScroll: Boolean, isLastScroll: Boolean }`. It can be used to fetch more data for example. |
-| classes                  | `{ wrapper: string, itemsWrapper: string, itemsInnerWrapper: string, itemWrapper: string, rightChevronWrapper: string, leftChevronWrapper: string }` | {}      | An object of classes to pass to the carousel inner elements | 
+| classes                  | `{ wrapper: string, itemsWrapper: string, itemsInnerWrapper: string, itemWrapper: string, rightChevronWrapper: string, leftChevronWrapper: string }` | {}      | An object of classes to pass to the carousel inner elements |
 
-Contributing
---------------
+
+# Infinite Loop Limitations
+If `infiniteLoop` was set to true, the following props are ignored
+- `activePosition`: will always be `left`
+- `alwaysShowChevrons`: will always be `true`
+
+# Contributing
 To contribute, follow these steps:
 - Fork this repo.
 - Clone your fork.
@@ -75,6 +80,5 @@ To contribute, follow these steps:
 - Goto `localhost:9000`
 - Add your patch then push to your fork and submit a pull request
 
-License
----------
+# License
 MIT
