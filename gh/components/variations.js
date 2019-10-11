@@ -4,6 +4,7 @@ const mainState = {
   noOfChildren: 10,
   wrapperStyle: { padding: "0 60px", maxWidth: 800, margin: '0 auto' },
   componentProps: {
+    infiniteLoop: false,
     gutter: 12,
     activePosition: 'center',
     chevronWidth: 60,
