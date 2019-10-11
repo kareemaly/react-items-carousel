@@ -126,4 +126,14 @@ export default {
     rightChevronWrapper: PropTypes.string,
     leftChevronWrapper: PropTypes.string,
   }),
+
+  /**
+   * Enables infinite loop
+   */
+  infiniteLoop: PropTypes.bool,
+
+  /**
+   * Can be used change translateX on the spot
+   */
+  calculateActualTranslateX: PropTypes.func,
 };

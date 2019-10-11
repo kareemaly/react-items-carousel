@@ -101,14 +101,17 @@ class ItemsCarouselBase extends React.Component {
       firstAndLastGutter,
       showSlither,
       classes,
+      calculateActualTranslateX,
     } = this.props;
+
+    const actualTranslateX = calculateActualTranslateX(translateX);
 
     return (
       <Wrapper className={classes.itemsWrapper}>
         <SliderItemsWrapper
           ref={measureRef}
           style={{
-            transform: `translateX(${translateX * -1}px)`,
+            transform: `translateX(${actualTranslateX * -1}px)`,
           }}
           className={classes.itemsInnerWrapper}
         >
@@ -157,7 +160,6 @@ class ItemsCarouselBase extends React.Component {
       gutter,
       numberOfCards,
       firstAndLastGutter,
-      activeItemIndex,
       activePosition,
       springConfig,
       showSlither,
@@ -238,7 +240,6 @@ ItemsCarouselBase.defaultProps = {
 
 ItemsCarouselBase.propTypes = {
   ...userPropTypes,
-
   // Props coming from withCarouselValues
   items: PropTypes.arrayOf(PropTypes.node).isRequired,
   activeItemTranslateX: PropTypes.number.isRequired,
