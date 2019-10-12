@@ -1,6 +1,5 @@
 import React from 'react';
 import { Motion, spring } from 'react-motion';
-import styled from 'styled-components';
 import PropTypes from 'prop-types';
 import userPropTypes from './userPropTypes';
 import {
@@ -13,47 +12,49 @@ import {
   calculatePreviousIndex,
 } from './helpers';
 
-const CarouselWrapper = styled.div`
-  position: relative;
-  ${(props) => props.height && `height: ${props.height}px;`}
-`;
+const getCarouselWrapperStyle = () => ({
+  position: 'relative',
+});
 
-const Wrapper = styled.div`
-  width: 100%;
-  overflow-x: hidden;
-`;
+const getWrapperStyle = () => ({
+  width: '100%',
+  overflowX: 'hidden',
+});
 
-const SliderItemsWrapper = styled.div`
-  width: 100%;
-  display: flex;
-  flex-wrap: nowrap;
-`;
+const getSliderItemsWrapperStyle = ({ translateX }) => ({
+  width: '100%',
+  display: 'flex',
+  flexWrap: 'nowrap',
+  transform: `translateX(${translateX * -1}px)`
+})
 
-const SliderItem = styled.div`
-  width: ${(props) => props.width}px;
-  flex-shrink: 0;
-  margin-right: ${(props) => props.rightGutter}px;
-  margin-left: ${(props) => props.leftGutter}px;
-`;
+const getSliderItemStyle = ({ width, rightGutter, leftGutter }) => ({
+  width,
+  flexShrink: 0,
+  marginRight: rightGutter,
+  marginLeft: leftGutter,
+});
 
-const CarouselChevron = styled.div`
-  position: absolute;
-  height: 100%;
-  width: ${(props) => props.chevronWidth + 1}px;
-  cursor: pointer;
-  top: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;
+const getCarouselChevronStyle = (chevronWidth) => ({
+  position: 'absolute',
+  height: '100%',
+  width: chevronWidth + 1,
+  cursor: 'pointer',
+  top: 0,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+});
 
-const CarouselRightChevron = styled(props => <CarouselChevron {...props} />)`
-  right: -${(props) => props.outsideChevron ? props.chevronWidth : 0}px;
-`;
+const getCarouselRightChevronStyle = ({ chevronWidth, outsideChevron }) => ({
+  ...getCarouselChevronStyle(chevronWidth),
+  right: outsideChevron ? -1 * chevronWidth : 0,
+});
 
-const CarouselLeftChevron = styled(props => <CarouselChevron {...props} />)`
-  left: -${(props) => props.outsideChevron ? props.chevronWidth : 0}px;
-`;
+const getCarouselLeftChevronStyle = ({ chevronWidth, outsideChevron }) => ({
+  ...getCarouselChevronStyle(chevronWidth),
+  left: outsideChevron ? -1 * chevronWidth : 0,
+});
 
 class ItemsCarouselBase extends React.Component {
   componentDidUpdate(prevProps) {
@@ -104,45 +105,45 @@ class ItemsCarouselBase extends React.Component {
       calculateActualTranslateX,
     } = this.props;
 
-    const actualTranslateX = calculateActualTranslateX(translateX);
-
     return (
-      <Wrapper className={classes.itemsWrapper}>
-        <SliderItemsWrapper
+      <div style={getWrapperStyle()} className={classes.itemsWrapper}>
+        <div
           ref={measureRef}
-          style={{
-            transform: `translateX(${actualTranslateX * -1}px)`,
-          }}
+          style={getSliderItemsWrapperStyle({
+            translateX: calculateActualTranslateX(translateX),
+          })}
           className={classes.itemsInnerWrapper}
         >
           {items.map((child, index) => (
-            <SliderItem
+            <div
               key={index}
+              style={getSliderItemStyle({
+                width: calculateItemWidth({
+                  firstAndLastGutter,
+                  containerWidth,
+                  gutter,
+                  numberOfCards,
+                  showSlither,
+                }),
+                leftGutter: calculateItemLeftGutter({
+                  index,
+                  firstAndLastGutter,
+                  gutter,
+                }),
+                rightGutter: calculateItemRightGutter({
+                  index,
+                  firstAndLastGutter,
+                  gutter,
+                  numberOfChildren: items.length,
+                }),
+              })}
               className={classes.itemWrapper}
-              width={calculateItemWidth({
-                firstAndLastGutter,
-                containerWidth,
-                gutter,
-                numberOfCards,
-                showSlither,
-              })}
-              leftGutter={calculateItemLeftGutter({
-                index,
-                firstAndLastGutter,
-                gutter,
-              })}
-              rightGutter={calculateItemRightGutter({
-                index,
-                firstAndLastGutter,
-                gutter,
-                numberOfChildren: items.length,
-              })}
             >
               {child}
-            </SliderItem>
+            </div>
           ))}
-        </SliderItemsWrapper>
-      </Wrapper>
+        </div>
+      </div>
     );
   }
 
@@ -185,7 +186,8 @@ class ItemsCarouselBase extends React.Component {
     const _showLeftChevron = leftChevron && (alwaysShowChevrons || !isFirstScroll);
 
     return (
-      <CarouselWrapper
+      <div
+        style={getCarouselWrapperStyle()}
         onTouchStart={onWrapperTouchStart}
         onTouchEnd={onWrapperTouchEnd}
         onTouchMove={onWrapperTouchMove}
@@ -207,27 +209,31 @@ class ItemsCarouselBase extends React.Component {
         />
         {
           _showRightChevron &&
-          <CarouselRightChevron
-            chevronWidth={chevronWidth}
-            outsideChevron={outsideChevron}
+          <div
+            style={getCarouselRightChevronStyle({
+              chevronWidth,
+              outsideChevron,
+            })}
             className={classes.rightChevronWrapper}
             onClick={() => requestToChangeActive(nextItemIndex)}
           >
             {rightChevron}
-          </CarouselRightChevron>
+          </div>
         }
         {
           _showLeftChevron &&
-          <CarouselLeftChevron
-            chevronWidth={chevronWidth}
-            outsideChevron={outsideChevron}
+          <div
+            style={getCarouselLeftChevronStyle({
+              chevronWidth,
+              outsideChevron,
+            })}
             className={classes.leftChevronWrapper}
             onClick={() => requestToChangeActive(previousItemIndex)}
           >
             {leftChevron}
-          </CarouselLeftChevron>
+          </div>
         }
-      </CarouselWrapper>
+      </div>
     );
   }
 }
