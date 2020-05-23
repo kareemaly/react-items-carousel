@@ -1,65 +1,57 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
-export default () => (Cpmt) => {
-  return class WithPlaceholderMode extends React.Component {
-    constructor(props) {
-      super(props);
-      this.state = {
-        isPlaceholderMode: this.props.enablePlaceholder && React.Children.count(this.props.children) === 0,
-      };
+export default () => (Cpmt) => (props) => {
+  const countChildren = countChildren
+  const [isPlaceholderMode, setPlaceholderMode] = useState(props.enablePlaceholder && countChildren === 0)
+  let placeholderTimer = null;
+
+  const startPlaceholderMinimumTimer = () => {
+    if (!props.minimumPlaceholderTime) {
+      return;
     }
 
-    componentDidMount() {
-      this.startPlaceholderMinimumTimer();
-    }
+    placeholderTimer = setTimeout(() => {
+      placeholderTimer = null;
+      if (countChildren > 0) {
+        setPlaceholderMode(false)
+      }
+    }, props.minimumPlaceholderTime);
+  };
 
-    componentWillUnmount() {
-      if(this.placeholderTimer) {
-        clearTimeout(this.placeholderTimer);
+
+  useEffect(() => {
+    startPlaceholderMinimumTimer();
+    return () => {
+      if (placeholderTimer) {
+        clearTimeout(placeholderTimer);
       }
     }
+  }, [])
 
-    componentDidUpdate(prevProps) {
-      // Data loaded and no timer to deactivate placeholder mode
-      if (
-        React.Children.count(this.props.children) > 0 &&
-        React.Children.count(prevProps.children) === 0 &&
-        !this.placeholderTimer &&
-        this.state.isPlaceholderMode
-      ) {
-        this.setState({ isPlaceholderMode: false });
-      }
+  useEffect(() => {
+    // Data loaded and no timer to deactivate placeholder mode
+    if (
+      countChildren > 0 &&
+      placeholderTimer &&
+      isPlaceholderMode
+    ) {
+      setPlaceholderMode(false)
     }
+  }, [countChildren])
 
-    startPlaceholderMinimumTimer = () => {
-      if(!this.props.minimumPlaceholderTime) {
-        return;
-      }
+  const getPlaceholderItems = () => {
+    const {
+      placeholderItem,
+      numberOfPlaceholderItems,
+    } = props;
 
-      this.placeholderTimer = setTimeout(() => {
-        this.placeholderTimer = null;
-        if (React.Children.count(this.props.children) > 0) {
-          this.setState({ isPlaceholderMode: false });
-        }
-      }, this.props.minimumPlaceholderTime);
-    };
+    return Array.from(Array(numberOfPlaceholderItems)).map(index => placeholderItem);
+  };
 
-    getPlaceholderItems = () => {
-      const {
-        placeholderItem,
-        numberOfPlaceholderItems,
-      } = this.props;
-
-      return Array.from(Array(numberOfPlaceholderItems)).map(index => placeholderItem);
-    };
-
-    render() {
-      return (
-        <Cpmt
-          {...this.props}
-          items={this.state.isPlaceholderMode ? this.getPlaceholderItems() : this.props.items}
-        />
-      )
-    }
-  }
+  return (
+    <Cpmt
+      {...props}
+      items={isPlaceholderMode ? getPlaceholderItems() : props.items}
+    />
+  )
 }

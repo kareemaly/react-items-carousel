@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Motion, spring } from 'react-motion';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
@@ -9,8 +9,6 @@ import {
   calculateItemRightGutter,
   showLeftChevron,
   showRightChevron,
-  calculateNextIndex,
-  calculatePreviousIndex,
 } from './helpers';
 
 const CarouselWrapper = styled.div`
@@ -55,181 +53,191 @@ const CarouselLeftChevron = styled(props => <CarouselChevron {...props} />)`
   left: -${(props) => props.outsideChevron ? props.chevronWidth : 0}px;
 `;
 
-class ItemsCarouselBase extends React.Component {
-  componentDidUpdate(prevProps) {
-    if (
-      this.props.onActiveStateChange &&
-      this.props.activeItemIndex !== prevProps.activeItemIndex
-    ) {
-      this.props.onActiveStateChange({
-        ...this.getScrollState(),
-      })
-    }
-  }
+const renderList = ({
+  items,
+  translateX,
+  containerWidth,
+  measureRef,
+  gutter,
+  numberOfCards,
+  firstAndLastGutter,
+  showSlither,
+  classes,
+  calculateActualTranslateX
+}) => {
+  const actualTranslateX = calculateActualTranslateX(translateX);
 
-  getScrollState = () => {
-    let {
-      numberOfCards,
+  return (
+    <Wrapper className={classes.itemsWrapper}>
+      <SliderItemsWrapper
+        ref={measureRef}
+        style={{
+          transform: `translateX(${actualTranslateX * -1}px)`,
+        }}
+        className={classes.itemsInnerWrapper}
+      >
+        {items.map((child, index) => (
+          <SliderItem
+            key={index}
+            className={classes.itemWrapper}
+            width={calculateItemWidth({
+              firstAndLastGutter,
+              containerWidth,
+              gutter,
+              numberOfCards,
+              showSlither,
+            })}
+            leftGutter={calculateItemLeftGutter({
+              index,
+              firstAndLastGutter,
+              gutter,
+            })}
+            rightGutter={calculateItemRightGutter({
+              index,
+              firstAndLastGutter,
+              gutter,
+              numberOfChildren: items.length,
+            })}
+          >
+            {child}
+          </SliderItem>
+        ))}
+      </SliderItemsWrapper>
+    </Wrapper>
+  );
+}
+
+const getScrollState = ({
+  numberOfCards,
+  activeItemIndex,
+  activePosition,
+  slidesToScroll,
+  items,
+}) => {
+  return {
+    isLastScroll: !showRightChevron({
       activeItemIndex,
       activePosition,
+      numberOfChildren: items.length,
+      numberOfCards,
       slidesToScroll,
-      items,
-    } = this.props;
+    }),
+    isFirstScroll: !showLeftChevron({
+      activeItemIndex,
+      activePosition,
+      numberOfChildren: items.length,
+      numberOfCards,
+      slidesToScroll,
+    })
+  }
+};
 
-    return {
-      isLastScroll: !showRightChevron({
-        activeItemIndex,
-        activePosition,
-        numberOfChildren: items.length,
-        numberOfCards,
-        slidesToScroll,
-      }),
-      isFirstScroll: !showLeftChevron({
-        activeItemIndex,
-        activePosition,
-        numberOfChildren: items.length,
-        numberOfCards,
-        slidesToScroll,
+const ItemsCarouselBase = ({
+  onActiveStateChange,
+  activeItemIndex,
+  // Props coming from withContainerWidth
+  containerWidth,
+  measureRef,
+  // Props coming from withSwipe
+  touchRelativeX,
+  onWrapperTouchStart,
+  onWrapperTouchEnd,
+  onWrapperTouchMove,
+  // Props coming from user
+  gutter,
+  numberOfCards,
+  firstAndLastGutter,
+  activePosition,
+  springConfig,
+  showSlither,
+  rightChevron,
+  leftChevron,
+  chevronWidth,
+  outsideChevron,
+  requestToChangeActive,
+  slidesToScroll,
+  alwaysShowChevrons,
+  classes,
+  items,
+  activeItemTranslateX,
+  nextItemIndex,
+  previousItemIndex,
+  calculateActualTranslateX,
+}) => {
+
+  const scrollState = getScrollState({
+    numberOfCards,
+    activeItemIndex,
+    activePosition,
+    slidesToScroll,
+    items,
+  });
+
+  useEffect(() => {
+    if (
+      onActiveStateChange
+    ) {
+      onActiveStateChange({
+        ...scrollState
       })
     }
-  };
+  }, [activeItemIndex, onActiveStateChange]);
 
-  renderList({ items, translateX, containerWidth, measureRef }) {
-    const {
-      gutter,
-      numberOfCards,
-      firstAndLastGutter,
-      showSlither,
-      classes,
-      calculateActualTranslateX,
-    } = this.props;
+  const { isFirstScroll, isLastScroll } = scrollState;
+  const _showRightChevron = rightChevron && (alwaysShowChevrons || !isLastScroll);
+  const _showLeftChevron = leftChevron && (alwaysShowChevrons || !isFirstScroll);
 
-    const actualTranslateX = calculateActualTranslateX(translateX);
-
-    return (
-      <Wrapper className={classes.itemsWrapper}>
-        <SliderItemsWrapper
-          ref={measureRef}
-          style={{
-            transform: `translateX(${actualTranslateX * -1}px)`,
-          }}
-          className={classes.itemsInnerWrapper}
+  return (
+    <CarouselWrapper
+      onTouchStart={onWrapperTouchStart}
+      onTouchEnd={onWrapperTouchEnd}
+      onTouchMove={onWrapperTouchMove}
+      className={classes.wrapper}
+    >
+      <Motion
+        defaultStyle={{
+          translateX: activeItemTranslateX,
+        }}
+        style={{
+          translateX: spring(activeItemTranslateX + touchRelativeX, springConfig),
+        }}
+        children={({ translateX }) => renderList({
+          items,
+          measureRef,
+          containerWidth,
+          translateX,
+          gutter,
+          numberOfCards,
+          firstAndLastGutter,
+          showSlither,
+          classes,
+          calculateActualTranslateX,
+        })}
+      />
+      {
+        _showRightChevron &&
+        <CarouselRightChevron
+          chevronWidth={chevronWidth}
+          outsideChevron={outsideChevron}
+          className={classes.rightChevronWrapper}
+          onClick={() => requestToChangeActive(nextItemIndex)}
         >
-          {items.map((child, index) => (
-            <SliderItem
-              key={index}
-              className={classes.itemWrapper}
-              width={calculateItemWidth({
-                firstAndLastGutter,
-                containerWidth,
-                gutter,
-                numberOfCards,
-                showSlither,
-              })}
-              leftGutter={calculateItemLeftGutter({
-                index,
-                firstAndLastGutter,
-                gutter,
-              })}
-              rightGutter={calculateItemRightGutter({
-                index,
-                firstAndLastGutter,
-                gutter,
-                numberOfChildren: items.length,
-              })}
-            >
-              {child}
-            </SliderItem>
-          ))}
-        </SliderItemsWrapper>
-      </Wrapper>
-    );
-  }
-
-  render() {
-    let {
-      // Props coming from withContainerWidth
-      containerWidth,
-      measureRef,
-      // Props coming from withSwipe
-      touchRelativeX,
-      onWrapperTouchStart,
-      onWrapperTouchEnd,
-      onWrapperTouchMove,
-      // Props coming from user
-      gutter,
-      numberOfCards,
-      firstAndLastGutter,
-      activePosition,
-      springConfig,
-      showSlither,
-      rightChevron,
-      leftChevron,
-      chevronWidth,
-      outsideChevron,
-      requestToChangeActive,
-      slidesToScroll,
-      alwaysShowChevrons,
-      classes,
-      items,
-      activeItemTranslateX,
-      nextItemIndex,
-      previousItemIndex,
-    } = this.props;
-
-    const {
-      isFirstScroll,
-      isLastScroll,
-    } = this.getScrollState();
-    const _showRightChevron = rightChevron && (alwaysShowChevrons || !isLastScroll);
-    const _showLeftChevron = leftChevron && (alwaysShowChevrons || !isFirstScroll);
-
-    return (
-      <CarouselWrapper
-        onTouchStart={onWrapperTouchStart}
-        onTouchEnd={onWrapperTouchEnd}
-        onTouchMove={onWrapperTouchMove}
-        className={classes.wrapper}
-      >
-        <Motion
-          defaultStyle={{
-            translateX: activeItemTranslateX,
-          }}
-          style={{
-            translateX: spring(activeItemTranslateX + touchRelativeX, springConfig),
-          }}
-          children={({ translateX }) => this.renderList({
-            items,
-            measureRef,
-            containerWidth,
-            translateX,
-          })}
-        />
-        {
-          _showRightChevron &&
-          <CarouselRightChevron
-            chevronWidth={chevronWidth}
-            outsideChevron={outsideChevron}
-            className={classes.rightChevronWrapper}
-            onClick={() => requestToChangeActive(nextItemIndex)}
-          >
-            {rightChevron}
-          </CarouselRightChevron>
-        }
-        {
-          _showLeftChevron &&
-          <CarouselLeftChevron
-            chevronWidth={chevronWidth}
-            outsideChevron={outsideChevron}
-            className={classes.leftChevronWrapper}
-            onClick={() => requestToChangeActive(previousItemIndex)}
-          >
-            {leftChevron}
-          </CarouselLeftChevron>
-        }
-      </CarouselWrapper>
-    );
-  }
+          {rightChevron}
+        </CarouselRightChevron>
+      }
+      {
+        _showLeftChevron &&
+        <CarouselLeftChevron
+          chevronWidth={chevronWidth}
+          outsideChevron={outsideChevron}
+          className={classes.leftChevronWrapper}
+          onClick={() => requestToChangeActive(previousItemIndex)}
+        >
+          {leftChevron}
+        </CarouselLeftChevron>
+      }
+    </CarouselWrapper>
+  );
 }
 
 ItemsCarouselBase.defaultProps = {

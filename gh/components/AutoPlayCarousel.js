@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import range from 'lodash/range';
 import styled from 'styled-components';
 import ItemsCarousel from '../../src/ItemsCarousel';
@@ -26,44 +26,37 @@ const SlideItem = styled.div`
 
 const carouselItems = range(noOfItems).map(index => (
   <SlideItem key={index}>
-    {index+1}
+    {index + 1}
   </SlideItem>
 ));
 
-export default class AutoPlayCarousel extends React.Component {
-  state = {
-    activeItemIndex: 0,
-  };
+const AutoPlayCarousel = () => {
+  const [activeItemIndex, setActiveItemIndex] = useState(0)
+  let interval = null;
 
-  componentDidMount() {
-    this.interval = setInterval(this.tick, autoPlayDelay);
-  }
+  useEffect(() => {
+    interval = setInterval(tick, autoPlayDelay);
+    return () => { clearInterval(interval); }
+  }, [])
 
-  componentWillUnmount() {
-    clearInterval(this.interval);
-  }
+  const tick = () => setActiveItemIndex(prevState => (prevState + 1) % (noOfItems - noOfCards + 1));
+  const onChange = value => setActiveItemIndex(value);
 
-  tick = () => this.setState(prevState => ({
-    activeItemIndex: (prevState.activeItemIndex + 1) % (noOfItems-noOfCards + 1),
-  }));
-
-  onChange = value => this.setState({ activeItemIndex: value });
-
-  render() {
-    return (
-      <Wrapper>
-        <ItemsCarousel
-          gutter={12}
-          numberOfCards={noOfCards}
-          activeItemIndex={this.state.activeItemIndex}
-          requestToChangeActive={this.onChange}
-          rightChevron={<button>{'>'}</button>}
-          leftChevron={<button>{'<'}</button>}
-          chevronWidth={chevronWidth}
-          outsideChevron
-          children={carouselItems}
-        />
-      </Wrapper>
-    );
-  }
+  return (
+    <Wrapper>
+      <ItemsCarousel
+        gutter={12}
+        numberOfCards={noOfCards}
+        activeItemIndex={activeItemIndex}
+        requestToChangeActive={onChange}
+        rightChevron={<button>{'>'}</button>}
+        leftChevron={<button>{'<'}</button>}
+        chevronWidth={chevronWidth}
+        outsideChevron
+        children={carouselItems}
+      />
+    </Wrapper>
+  );
 }
+
+export default AutoPlayCarousel;

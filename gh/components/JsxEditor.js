@@ -6,9 +6,9 @@ import 'brace/mode/jsx';
 import 'brace/theme/tomorrow_night';
 
 export const editorStyleProps = {
-  theme: "tomorrow_night",
-  style: { lineHeight: 1.8, fontSize: `.9rem`, width: '100%' },
-  editorProps: {$blockScrolling: true},
+  theme: 'tomorrow_night',
+  style: { lineHeight: 1.8, fontSize: '.9rem', width: '100%' },
+  editorProps: { $blockScrolling: true },
 };
 
 // Render editor

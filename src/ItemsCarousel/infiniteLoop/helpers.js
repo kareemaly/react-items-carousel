@@ -1,8 +1,6 @@
-import min from 'lodash.min';
-import max from 'lodash.max';
 import { calculateActiveItemTranslateX } from '../helpers';
 
-const getItems =  (items, { numberOfCards }) => {
+const getItems = (items, { numberOfCards }) => {
   return [
     ...items.slice(items.length - numberOfCards),
     ...items,
@@ -13,7 +11,7 @@ const getItems =  (items, { numberOfCards }) => {
 const getPreviousItemIndex = ({
   activeItemIndex,
   slidesToScroll,
-}) =>  activeItemIndex - slidesToScroll;
+}) => activeItemIndex - slidesToScroll;
 
 const getNextItemIndex = ({
   activeItemIndex,
@@ -56,7 +54,7 @@ const getActualTranslateX = (items, currentTranslateX, {
 }) => {
   const lastTranslateX = getActiveItemTranslateX({
     numberOfChildren: items.length,
-    activeItemIndex: items.length - numberOfCards*2,
+    activeItemIndex: items.length - numberOfCards * 2,
     activePosition,
     containerWidth,
     numberOfCards,
@@ -77,7 +75,7 @@ const getActualTranslateX = (items, currentTranslateX, {
   });
 
 
-  const actualTranslateX = currentTranslateX%lastTranslateX + leftShift;
+  const actualTranslateX = currentTranslateX % lastTranslateX + leftShift;
 
   if (actualTranslateX <= 0) {
     return lastTranslateX - Math.abs(actualTranslateX);

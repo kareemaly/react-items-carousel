@@ -18,9 +18,9 @@ const renderValue = value => {
 };
 
 export const editorStyleProps = {
-  theme: "tomorrow_night",
-  style: { lineHeight: 1.8, fontSize: `.9rem`, width: '100%' },
-  editorProps: {$blockScrolling: true},
+  theme: 'tomorrow_night',
+  style: { lineHeight: 1.8, fontSize: '.9rem', width: '100%' },
+  editorProps: { $blockScrolling: true },
 };
 
 // Render editor
@@ -32,7 +32,7 @@ const EditorViewer = ({ componentProps = {}, wrapperStyle, noOfChildren }) => {
       mode="jsx"
       name="EDITOR_VIEWER"
       value={`<div style={${JSON.stringify(wrapperStyle)}}>
-  <ItemsCarousel${withDataFetching ? `\n    placeholderItem={<div style={{ height: 200, background: '#EEE' }} />}` : ''}
+  <ItemsCarousel${withDataFetching ? '\n    placeholderItem={<div style={{ height: 200, background: \'#EEE\' }} />}' : ''}
 ${Object.keys(componentProps).map(key => (
         `    ${key}={${renderValue(componentProps[key])}}`
       )).join('\n')}

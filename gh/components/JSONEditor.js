@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import AceEditor from "react-ace";
 import "brace/mode/json";
-import {editorStyleProps} from './EditorViewer';
+import { editorStyleProps } from './EditorViewer';
 
 const JSONEditor = ({
   json,
@@ -15,7 +15,7 @@ const JSONEditor = ({
     try {
       const parsedValue = JSON.parse(value);
       onJSONChange(parsedValue);
-    } catch(err) {
+    } catch (err) {
       setValue(value);
     }
   };
