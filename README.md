@@ -6,7 +6,7 @@ react-items-carousel
 $ npm install react-items-carousel --save
 ```
 
-# [Demos](https://bitriddler.github.io/react-items-carousel/)
+# [Demos](https://kareemaly.github.io/react-items-carousel/)
 
 # Example
 
