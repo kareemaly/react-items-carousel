@@ -29,8 +29,8 @@ const SliderItemsWrapper = styled.div`
   flex-wrap: nowrap;
 `;
 
-const SliderItem = styled.div`
-  width: ${(props) => props.width}px;
+const SliderItem = styled(({width, ...props}) => <div {...props} />)`
+  width: ${props => props.width}px;
   flex-shrink: 0;
   margin-right: ${(props) => props.rightGutter}px;
   margin-left: ${(props) => props.leftGutter}px;
