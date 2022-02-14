@@ -62,12 +62,12 @@
     "webpack-node-externals": "^1.7.2"
   },
   "dependencies": {
+    "@serprex/react-motion": "^0.6.3",
     "lodash.max": "^4.0.1",
     "lodash.min": "^4.0.1",
     "prop-types": "^15.5.8",
     "react": "16.8.1",
     "react-measure": "^2.2.4",
-    "react-motion": "^0.5.2",
     "styled-components": "^4.1.3"
   }
 }
