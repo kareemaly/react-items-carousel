@@ -1,5 +1,5 @@
 import React from 'react';
-import { Motion, spring } from '@serprex/react-motion';
+import { Motion, spring } from '@korbav/react-motion';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
 import userPropTypes from './userPropTypes';
