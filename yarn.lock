@@ -682,11 +682,12 @@
   version "0.7.3"
   resolved "https://registry.yarnpkg.com/@emotion/unitless/-/unitless-0.7.3.tgz#6310a047f12d21a1036fb031317219892440416f"
 
-"@serprex/react-motion@^0.6.3":
-  version "0.6.3"
-  resolved "https://registry.yarnpkg.com/@serprex/react-motion/-/react-motion-0.6.3.tgz#1b4df35ade0150af08d4837da7d08cbc398e08a3"
-  integrity sha512-TC5QpaMFVLTSKoWisGvUvavNvlnjeDlXvSGR+uNVZRXmj85DZWtL3S1oobbGTXOsbGCo3u2c/IM8cjmPegOIGQ==
+"@korbav/react-motion@^0.0.2":
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/@korbav/react-motion/-/react-motion-0.0.2.tgz#7104ca2c8387dcf74e00f0e7a07382a558389954"
+  integrity sha512-XLWct1ol7MAOn9iSLBDpbcwaHLUGVgXXmMFsYaGL1tz/A/Nt9MOGd7GyZ7Zd/fW/0/Zk4D3Wf8ckrhZbbPFheA==
   dependencies:
+    lodash.isequal "^4.5.0"
     performance-now "^2.1.0"
     prop-types "^15.5.8"
     raf "^3.1.0"
