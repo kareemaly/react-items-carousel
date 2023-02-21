@@ -118,7 +118,7 @@ export const calculateActiveItemTranslateX = ({
   }
 
   // Last items to show
-  if(!infiniteLoop && gotoIndex > (numberOfChildren - numberOfCards - 1)) {
+  if(!infiniteLoop && gotoIndex > (numberOfChildren - numberOfCards)) {
     return calculateLastPossibleTranslateX({
       activeItemIndex: gotoIndex,
       activePosition,
